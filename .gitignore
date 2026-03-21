@@ -1,0 +1,37 @@
+# nas-gitops .gitignore
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Ansible
+*.retry
+
+# Secrets — NEVER commit decrypted secrets
+# all.sops.yml is encrypted and safe to commit
+# these are temporary decrypted files
+*.decrypted.yml
+*.decrypted.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Mise
+.mise.local.toml
+
+# Downloaded skills source (already adapted to .claude/skills/)
+claude-ansible-skills-main/
+
+# Temporary files
+tmp/
+*.tmp
+*.bak

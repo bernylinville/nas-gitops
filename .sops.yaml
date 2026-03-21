@@ -1,0 +1,5 @@
+# .sops.yaml — sops configuration for nas-gitops
+creation_rules:
+  - path_regex: \.sops\.yml$
+    age: >-
+      age1s6sh5p5d5fuwevsaztmfu0nhk9vrleevqcnp7zm2ljta89h9eemq4awpev

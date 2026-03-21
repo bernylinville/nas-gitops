@@ -1,0 +1,41 @@
+---
+# group_vars/all.yml — Common variables for all hosts
+# Non-secret variables only. Secrets go in all.sops.yml
+
+# === Network ===
+# NAS LAN IP — update with actual value
+nas_lan_ip: "192.168.50.10"
+# NAS EasyTier virtual IP — update with actual value
+nas_easytier_ip: "10.126.126.1"
+# Home LAN subnet
+nas_lan_subnet: "192.168.50.0/24"
+# EasyTier subnet
+nas_easytier_subnet: "10.126.126.0/24"
+
+# === System ===
+nas_timezone: "Asia/Shanghai"
+nas_ntp_servers:
+  - "ntp.aliyun.com"
+  - "time.apple.com"
+
+# === Docker ===
+docker_edition: "ce"
+docker_install_compose_plugin: true
+docker_service_enabled: true
+docker_service_state: started
+docker_daemon_options:
+  log-driver: "local"
+  log-opts:
+    max-size: "50m"
+    max-file: "3"
+  storage-driver: "overlay2"
+
+# === Directories ===
+nas_compose_base: "/opt/compose"
+nas_data_dir: "/data"
+nas_backup_local_dir: "/data/backups/restic"
+
+# === Monitoring ===
+nas_disk_space_threshold: 85
+nas_smart_short_schedule: "weekly"
+nas_smart_long_schedule: "monthly"

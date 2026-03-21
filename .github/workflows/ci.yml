@@ -1,0 +1,95 @@
+---
+# ci.yml — nas-gitops CI pipeline
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          pip install ansible-core ansible-lint yamllint
+
+      - name: Install Ansible requirements
+        run: |
+          ansible-galaxy install -r requirements.yml
+          ansible-galaxy collection install -r requirements.yml
+
+      - name: yamllint
+        run: yamllint -s ansible/ inventory/
+
+      - name: ansible-lint
+        run: ansible-lint ansible/
+
+  shell-lint:
+    name: Shell Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: shellcheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: scripts/
+
+      - name: shfmt
+        uses: mvdan/sh/cmd/shfmt@latest
+        with:
+          shfmt-args: -d scripts/
+
+  compose-check:
+    name: Compose Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate compose files
+        run: |
+          for f in $(find compose/ -name "docker-compose.yml" -o -name "compose.yml" 2>/dev/null); do
+            echo "Validating $f..."
+            docker compose -f "$f" config --quiet || exit 1
+          done
+
+  policy-check:
+    name: Policy Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run policy checks
+        run: |
+          if [ -f policy/check-compose-policy.sh ]; then
+            bash policy/check-compose-policy.sh
+          fi
+
+  secrets-scan:
+    name: Secrets Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

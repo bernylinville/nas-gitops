@@ -1,0 +1,5 @@
+[env]
+MISE_PYTHON_PRECOMPILED_FLAVOR = "install_only"
+
+[tools]
+python = "3.14.3"

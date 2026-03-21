@@ -1,0 +1,11 @@
+---
+# requirements.yml — External Ansible roles and collections
+roles:
+  - name: geerlingguy.docker
+    version: "8.0.0"
+
+collections:
+  - name: community.docker
+    version: ">=5.0.0"
+  - name: community.general
+    version: ">=12.4.0"
