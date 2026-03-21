@@ -1,0 +1,13 @@
+---
+# monitoring/defaults/main.yml — Default variables for monitoring role
+monitoring_smart_short_schedule: "{{ nas_smart_short_schedule | default('weekly') }}"
+monitoring_smart_long_schedule: "{{ nas_smart_long_schedule | default('monthly') }}"
+monitoring_disk_space_threshold: "{{ nas_disk_space_threshold | default(85) }}"
+
+# mdadm notification email (or leave empty to use scripts/alerts/)
+monitoring_mdadm_mail_to: "root"
+
+# Data disks for SMART monitoring
+monitoring_smart_devices:
+  - /dev/sdb
+  - /dev/sdc

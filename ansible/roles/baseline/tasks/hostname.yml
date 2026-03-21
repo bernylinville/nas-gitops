@@ -1,0 +1,5 @@
+---
+# baseline/tasks/hostname.yml — Set hostname
+- name: "hostname | Set system hostname"
+  ansible.builtin.hostname:
+    name: "{{ baseline_hostname }}"

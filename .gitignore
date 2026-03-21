@@ -6,6 +6,7 @@ __pycache__/
 *.pyc
 
 # Ansible
+.ansible/
 *.retry
 
 # Secrets — NEVER commit decrypted secrets

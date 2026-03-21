@@ -1,0 +1,37 @@
+{{ ansible_managed | comment }}
+# /etc/ssh/sshd_config — Hardened SSH configuration
+
+Port {{ baseline_ssh_port }}
+ListenAddress {{ nas_lan_ip }}
+AddressFamily inet
+
+# Authentication
+PermitRootLogin {{ baseline_ssh_permit_root_login }}
+PubkeyAuthentication {{ baseline_ssh_pubkey_authentication }}
+PasswordAuthentication {{ baseline_ssh_password_authentication }}
+ChallengeResponseAuthentication no
+UsePAM yes
+MaxAuthTries {{ baseline_ssh_max_auth_tries }}
+AllowUsers {{ baseline_ssh_allow_users }}
+
+# Session
+ClientAliveInterval {{ baseline_ssh_client_alive_interval }}
+ClientAliveCountMax {{ baseline_ssh_client_alive_count_max }}
+LoginGraceTime 30
+MaxStartups 3:50:10
+
+# Security
+X11Forwarding no
+AllowTcpForwarding no
+AllowAgentForwarding no
+PermitTunnel no
+PermitUserEnvironment no
+HostbasedAuthentication no
+IgnoreRhosts yes
+
+# Logging
+SyslogFacility AUTH
+LogLevel VERBOSE
+
+# Subsystems
+Subsystem sftp /usr/lib/openssh/sftp-server

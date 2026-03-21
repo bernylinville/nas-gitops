@@ -1,0 +1,12 @@
+---
+# baseline/meta/main.yml — Role metadata
+galaxy_info:
+  author: "Berny Linville"
+  description: "NAS baseline configuration: packages, SSH hardening, NTP, sysctl, unattended-upgrades"
+  license: "MIT"
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Debian
+      versions:
+        - trixie
+dependencies: []

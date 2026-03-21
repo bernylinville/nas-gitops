@@ -1,0 +1,9 @@
+---
+# monitoring/tasks/main.yml — Monitoring setup
+- name: "monitoring | Include SMART monitoring tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/smart.yml"
+
+- name: "monitoring | Include mdadm monitoring tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/mdadm.yml"

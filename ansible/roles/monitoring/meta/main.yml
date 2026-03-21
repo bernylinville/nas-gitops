@@ -1,0 +1,12 @@
+---
+# monitoring/meta/main.yml
+galaxy_info:
+  author: "Berny Linville"
+  description: "NAS monitoring: smartmontools SMART checks, mdadm RAID monitoring"
+  license: "MIT"
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Debian
+      versions:
+        - trixie
+dependencies: []

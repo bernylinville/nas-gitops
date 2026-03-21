@@ -1,0 +1,6 @@
+---
+# nftables/handlers/main.yml
+- name: Reload nftables
+  ansible.builtin.systemd:
+    name: nftables
+    state: reloaded

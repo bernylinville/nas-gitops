@@ -1,0 +1,11 @@
+---
+# baseline/handlers/main.yml — Baseline role handlers
+- name: Restart sshd
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+
+- name: Restart systemd-timesyncd
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    state: restarted

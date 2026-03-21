@@ -2,27 +2,45 @@
 # group_vars/all.yml — Common variables for all hosts
 # Non-secret variables only. Secrets go in all.sops.yml
 
+# === Hardware (actual) ===
+# CPU: Intel Core i5-9600KF 6C @ 3.70GHz
+# RAM: 16GB
+# System disk: /dev/sda (~1TB)
+# Data disks: 2x ~8TB HDD, mdadm RAID1 → /dev/md0 → /data
+
 # === Network ===
-# NAS LAN IP — update with actual value
+# NAS LAN IP (confirmed)
 nas_lan_ip: "192.168.50.10"
-# NAS EasyTier virtual IP — update with actual value
-nas_easytier_ip: "10.126.126.1"
 # Home LAN subnet
 nas_lan_subnet: "192.168.50.0/24"
-# EasyTier subnet
-nas_easytier_subnet: "10.126.126.0/24"
+# NAS network interface
+nas_lan_interface: "eno1"
+
+# EasyTier runs on the ROUTER (iStoreOS at 192.168.50.1),
+# NOT on the NAS. The router proxies 192.168.50.0/24 via EasyTier.
+# Remote EasyTier peers access NAS through the router's proxy,
+# so NAS firewall only needs to allow 192.168.50.0/24.
+# EasyTier mesh subnet (for reference only)
+easytier_mesh_subnet: "10.147.58.0/24"
+easytier_router_ip: "10.147.58.1"
 
 # === System ===
 nas_timezone: "Asia/Shanghai"
 nas_ntp_servers:
   - "ntp.aliyun.com"
   - "time.apple.com"
+  - "cn.ntp.org.cn"
+nas_hostname: "nas"
+
+# === SSH ===
+nas_ssh_port: 22
+nas_ssh_allow_users: "kchou"
 
 # === Docker ===
 docker_edition: "ce"
 docker_install_compose_plugin: true
 docker_service_enabled: true
-docker_service_state: started
+docker_service_state: "started"
 docker_daemon_options:
   log-driver: "local"
   log-opts:
@@ -34,8 +52,33 @@ docker_daemon_options:
 nas_compose_base: "/opt/compose"
 nas_data_dir: "/data"
 nas_backup_local_dir: "/data/backups/restic"
+nas_scripts_dir: "/opt/nas-gitops/scripts"
 
 # === Monitoring ===
 nas_disk_space_threshold: 85
 nas_smart_short_schedule: "weekly"
 nas_smart_long_schedule: "monthly"
+
+# === Packages ===
+baseline_packages:
+  - curl
+  - wget
+  - git
+  - htop
+  - tmux
+  - rsync
+  - jq
+  - unzip
+  - tree
+  - ncdu
+  - iotop
+  - lsof
+  - strace
+  - dnsutils
+  - net-tools
+  - nftables
+  - smartmontools
+  - mdadm
+  - restic
+  - python3-pip
+  - sudo

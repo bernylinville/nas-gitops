@@ -1,0 +1,4 @@
+{{ ansible_managed | comment }}
+# /etc/systemd/timesyncd.conf — NTP configuration
+[Time]
+NTP={{ baseline_ntp_servers | join(' ') }}

@@ -7,7 +7,9 @@ exclude_paths:
   - ansible/roles/geerlingguy.docker/
 
 skip_list:
-  - galaxy  # Skip galaxy-related checks for non-collection project
+  - galaxy  # Non-collection project
+  - name[casing]  # Our convention: "prefix | Action" where prefix is lowercase file name
+  - ignore-errors  # Used in verify.yml for non-critical checks
 
 warn_list:
   - experimental

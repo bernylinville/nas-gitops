@@ -1,0 +1,31 @@
+---
+# docker.yml — Install and configure Docker
+# Usage: ansible-playbook -i inventory/prod ansible/playbooks/docker.yml
+- name: Install Docker
+  hosts: nas
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: "docker | Create Docker daemon config directory"
+      ansible.builtin.file:
+        path: /etc/docker
+        state: directory
+        mode: "0755"
+
+    - name: "docker | Deploy Docker daemon.json (log rotation)"
+      ansible.builtin.copy:
+        dest: /etc/docker/daemon.json
+        content: "{{ docker_daemon_options | to_nice_json }}\n"
+        mode: "0644"
+        backup: true
+
+  roles:
+    - role: geerlingguy.docker
+
+  post_tasks:
+    - name: "docker | Add deploy user to docker group"
+      ansible.builtin.user:
+        name: "{{ nas_ssh_allow_users }}"
+        groups: docker
+        append: true

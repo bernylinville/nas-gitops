@@ -1,0 +1,8 @@
+{{ ansible_managed | comment }}
+# /etc/smartd.conf — SMART monitoring configuration
+# Short test: {{ monitoring_smart_short_schedule }}
+# Long test: {{ monitoring_smart_long_schedule }}
+
+{% for device in monitoring_smart_devices %}
+{{ device }} -a -o on -S on -s (S/../../{{ '1' if monitoring_smart_short_schedule == 'weekly' else '7' }}/02|L/../../{{ '1' if monitoring_smart_long_schedule == 'monthly' else '28' }}/03) -m root -M exec /usr/share/smartmontools/smartd-runner
+{% endfor %}

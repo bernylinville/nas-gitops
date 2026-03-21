@@ -1,0 +1,12 @@
+---
+# baseline.yml — Apply NAS baseline configuration
+# Usage: ansible-playbook -i inventory/prod ansible/playbooks/baseline.yml
+- name: Apply NAS baseline
+  hosts: nas
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: baseline
+    - role: nftables
+    - role: monitoring

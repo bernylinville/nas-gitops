@@ -1,0 +1,14 @@
+---
+# nftables/defaults/main.yml — Default variables for nftables role
+nftables_lan_subnet: "{{ nas_lan_subnet | default('192.168.50.0/24') }}"
+nftables_lan_ip: "{{ nas_lan_ip | default('192.168.50.10') }}"
+nftables_ssh_port: "{{ nas_ssh_port | default(22) }}"
+
+# Allowed TCP ports from LAN (SSH, HTTP, HTTPS)
+nftables_allowed_tcp_ports:
+  - "{{ nftables_ssh_port }}"
+  - 80
+  - 443
+
+# Additional allowed services (e.g., Uptime Kuma on 3001)
+nftables_extra_tcp_ports: []

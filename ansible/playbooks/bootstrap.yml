@@ -1,0 +1,31 @@
+---
+# bootstrap.yml — Initial NAS setup (run once on fresh system)
+# Usage: ansible-playbook -i inventory/prod ansible/playbooks/bootstrap.yml
+- name: Bootstrap NAS
+  hosts: nas
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: "bootstrap | Update apt cache"
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: "bootstrap | Install Python3 and essential packages"
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-apt
+          - sudo
+          - curl
+          - git
+        state: present
+
+    - name: "bootstrap | Ensure deploy user has sudo access"
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/kchou
+        line: "kchou ALL=(ALL) NOPASSWD: ALL"
+        create: true
+        mode: "0440"
+        validate: "visudo -cf %s"
