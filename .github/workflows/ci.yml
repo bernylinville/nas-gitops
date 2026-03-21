@@ -31,7 +31,7 @@ jobs:
           ansible-galaxy collection install -r requirements.yml
 
       - name: yamllint
-        run: yamllint -s -c .yamllint.yml ansible/playbooks/ ansible/roles/ inventory/ -e 'ansible/roles/geerlingguy.*' -e 'inventory/prod/group_vars/*.sops.yml'
+        run: yamllint -s -c .yamllint.yml ansible/ inventory/
 
       - name: ansible-lint
         run: ansible-lint ansible/
