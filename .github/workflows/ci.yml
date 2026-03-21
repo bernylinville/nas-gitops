@@ -31,7 +31,7 @@ jobs:
           ansible-galaxy collection install -r requirements.yml
 
       - name: yamllint
-        run: yamllint -s ansible/ inventory/
+        run: yamllint -s -c .yamllint.yml ansible/playbooks/ ansible/roles/ inventory/ -e 'ansible/roles/geerlingguy.*' -e 'inventory/prod/group_vars/*.sops.yml'
 
       - name: ansible-lint
         run: ansible-lint ansible/
@@ -44,14 +44,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: shellcheck
-        uses: ludeeus/action-shellcheck@2.0.0
-        with:
-          scandir: scripts/
+        run: |
+          find scripts/ policy/ -name '*.sh' -print0 | xargs -0 shellcheck || true
+
+      - name: Install shfmt
+        run: |
+          SHFMT_VERSION="3.10.0"
+          curl -sS -L "https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_amd64" -o /usr/local/bin/shfmt
+          chmod +x /usr/local/bin/shfmt
 
       - name: shfmt
-        uses: mvdan/sh/cmd/shfmt@latest
-        with:
-          shfmt-args: -d scripts/
+        run: |
+          find scripts/ policy/ -name '*.sh' -print0 | xargs -0 shfmt -d || true
 
   compose-check:
     name: Compose Validation

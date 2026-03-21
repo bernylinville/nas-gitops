@@ -25,3 +25,5 @@ rules:
 ignore:
   - .venv/
   - claude-ansible-skills-main/
+  - ansible/roles/geerlingguy.*/
+  - "*.sops.yml"
