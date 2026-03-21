@@ -1,0 +1,18 @@
+---
+# .ansible-lint — ansible-lint configuration for nas-gitops
+exclude_paths:
+  - .venv/
+  - .github/
+  - claude-ansible-skills-main/
+  - ansible/roles/geerlingguy.docker/
+
+skip_list:
+  - galaxy  # Skip galaxy-related checks for non-collection project
+
+warn_list:
+  - experimental
+
+enable_list:
+  - fqcn
+  - yaml
+  - name
