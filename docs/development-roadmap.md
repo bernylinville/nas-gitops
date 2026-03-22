@@ -1,18 +1,38 @@
 # NAS GitOps 开发规划
 
-> 基于 [nas-gitops-plan-v3.1](nas-gitops-plan-v3.1-2026-03-21.md) | 更新时间：2026-03-21
+> 基于 [nas-gitops-plan-v3.1](nas-gitops-plan-v3.1-2026-03-21.md) | 更新时间：2026-03-22
 
-## 目标系统
+## 目标系统（已确认）
 
 | 项目 | 值 |
 |------|---|
-| 主机 | 家用 NAS — Debian 13 (trixie) |
+| 主机 | 家用 NAS — Debian 13 (trixie), kernel 6.12.74 |
 | CPU | Intel i5-9600KF 6C @ 3.70GHz |
 | RAM | 16GB |
-| 系统盘 | SSD/HDD (单盘) |
-| 数据盘 | 2×8TB HDD, mdadm RAID1 → /data |
-| 网络 | LAN 192.168.50.10/24, EasyTier 通过路由器 (iStoreOS) 代理 |
-| 远程接入 | EasyTier only (零入站公网暴露) |
+| 系统盘 | ~1TB (sda: EFI + ext4 + swap) |
+| 数据盘 | 2×7.3TB HDD (sdb+sdc), mdadm RAID1 → /dev/md0 → /data |
+| 网络 | LAN 192.168.50.10/24 (eno1), 家庭内网无防火墙需求 |
+| 远程接入 | EasyTier 由路由器 (iStoreOS 192.168.50.1) 代理, NAS 不运行 EasyTier |
+| 已安装 | openssh-server 10.0p1, nftables 1.1.3, mdadm 4.4, smartmontools 7.4 |
+| 未安装 | Docker (M1 部署后安装), unattended-upgrades (M1 部署后安装) |
+
+## CI 结构（全部通过 ✅）
+
+| Workflow | 文件 | 说明 |
+|----------|------|------|
+| CI | `.github/workflows/ci.yml` | yamllint + ansible-lint + shellcheck + shfmt + gitleaks |
+| Molecule | `.github/workflows/molecule.yml` | 3 role syntax-check (baseline, docker, monitoring) |
+| Deploy Test | `.github/workflows/deploy-test.yml` | syntax-check (严格) + `--check --diff` dry-run (参考) |
+
+> **CI 策略原则**: role 代码保持纯净 (不加容器兼容 hack), CI 做语法和结构验证, 真实部署测试在 NAS 上执行。
+
+## 开发规范
+
+- **Lint**: `.ansible-lint` skip_list 仅保留 `galaxy[no-changelog]`
+- **Task 命名**: `name[casing]` 遵循首字母大写 (`"Prefix | Description"`)
+- **变量命名**: role 内变量加 role 前缀 (`baseline_xxx`, `docker_xxx`, `monitoring_xxx`)
+- **Docker role**: 自建 (参考 geerlingguy.docker 8.0.0), 不再使用第三方 role
+- **防火墙**: 不使用 (家庭内网), `nftables` 仅作为系统工具包安装
 
 ---
 
@@ -20,52 +40,51 @@
 
 | 状态 | 交付物 | 说明 |
 |:----:|--------|------|
-| ✅ | `ansible.cfg` | SSH pipelining, YAML callback, 项目路径配置 |
-| ✅ | `requirements.yml` | geerlingguy.docker 8.0.0 + ansible.posix + community.docker/general |
-| ✅ | `inventory/prod/hosts.yml` | 生产 inventory, SSH config alias |
-| ✅ | `inventory/prod/group_vars/all.yml` | 网络/系统/Docker/监控变量 |
-| ✅ | `inventory/prod/group_vars/all.sops.yml` | sops + age 加密 secrets |
+| ✅ | `ansible.cfg` | SSH pipelining, `ansible.builtin.default` callback, 项目路径配置 |
+| ✅ | `requirements.yml` | ansible.posix + community.docker + community.general |
+| ✅ | `inventory/prod/` | hosts.yml + group_vars/all.yml + all.sops.yml |
 | ✅ | `.sops.yaml` | 绑定 age 公钥, 自动加密 `*.sops.yml` |
-| ✅ | `.gitignore` | Python/Ansible/IDE/OS/secrets 排除 |
-| ✅ | `.yamllint.yml` | 120 char, true/false only, 排除第三方 role |
-| ✅ | `.ansible-lint` | 排除 geerlingguy.docker, 跳过 name[casing] |
-| ✅ | `.github/workflows/ci.yml` | 5 jobs: ansible-lint, yamllint, shellcheck, shfmt, compose-check, gitleaks |
-| ✅ | `.github/pull_request_template.md` | NAS 特定 checklist |
-| ✅ | `.github/CODEOWNERS` | 所有变更需 owner review |
-| ✅ | `policy/check-compose-policy.sh` | 5 项策略: no latest, no 0.0.0.0, healthcheck, restart, 端口绑定 |
-| ✅ | `CLAUDE.md` | 23 条硬约束 + 命令参考 + skills 索引 |
-| ✅ | `AGENTS.md` | 多 agent 兼容指引 (Claude/Codex/Gemini) |
-| ✅ | `README.md` | 架构概述 + 快速开始 |
-| ✅ | `.claude/skills/` | 3 个适配后的 Ansible skills |
-| ✅ | `mise.toml` | Python 3.14.3 + precompiled flavor 配置 |
+| ✅ | `.yamllint.yml` | 120 char, true/false only |
+| ✅ | `.ansible-lint` | skip_list 仅 galaxy[no-changelog] |
+| ✅ | `.github/workflows/ci.yml` | yamllint + ansible-lint + shellcheck + shfmt + gitleaks |
+| ✅ | `policy/check-compose-policy.sh` | 5 项策略检查 |
+| ✅ | `CLAUDE.md` + `AGENTS.md` | AI agent 指引 |
+| ✅ | `mise.toml` | Python 3.14.3 |
+| ✅ | `requirements-dev.txt` | molecule + ansible-lint + yamllint 开发依赖 |
 
 ---
 
 ## M1：主机基线 ✅ 已完成
 
-| 状态 | 交付物 | 说明 |
-|:----:|--------|------|
-| ✅ | `ansible/roles/baseline/` | SSH hardening (key-only, LAN IP 绑定, AllowUsers) |
-| | | NTP (systemd-timesyncd + 国内源) |
-| | | sysctl 安全加固 (rp_filter, no redirects, file-max) |
-| | | 基础包安装 (curl, git, htop, tmux, nftables, restic...) |
-| | | unattended-upgrades (security-only) |
-| ✅ | `ansible/roles/nftables/` | INPUT DROP 默认策略 |
-| | | LAN 子网 (192.168.50.0/24) only 放行 |
-| | | `nft -c -f` validate 预检 |
-| | | 可配置端口列表 + 额外端口扩展 |
-| ✅ | `ansible/roles/monitoring/` | smartmontools SMART 定期检测 (short weekly, long monthly) |
-| | | mdadm RAID 状态监控 + mdcheck timer |
-| ✅ | `ansible/playbooks/bootstrap.yml` | 裸机 → Ansible 可管理 (Python3, sudo, SSH) |
-| ✅ | `ansible/playbooks/baseline.yml` | 编排 baseline + nftables + monitoring roles |
-| ✅ | `ansible/playbooks/docker.yml` | geerlingguy.docker + daemon.json 日志轮转 + 用户加入 docker 组 |
-| ✅ | `ansible/playbooks/verify.yml` | 7 项验证: hostname, SSH, nftables, Docker, RAID, SMART, NTP |
-| ✅ | `scripts/bootstrap.sh` | 灾难恢复用裸机引导脚本 |
+### Roles (3 个)
 
-### M1 部署顺序
+| Role | 路径 | 功能 |
+|------|------|------|
+| baseline | `ansible/roles/baseline/` | 包管理, hostname, timezone/NTP, SSH hardening, sysctl, unattended-upgrades |
+| docker | `ansible/roles/docker/` | Docker CE 安装 (deb822 格式), daemon.json, compose plugin, user 管理 |
+| monitoring | `ansible/roles/monitoring/` | smartmontools SMART 监控, mdadm RAID 监控 |
+
+### Playbooks
+
+| Playbook | 说明 |
+|----------|------|
+| `baseline.yml` | 编排 baseline + monitoring roles |
+| `docker.yml` | 编排 docker role |
+| `verify.yml` | 6 项验证: hostname, SSH, Docker, RAID, SMART, NTP |
+| `bootstrap.yml` | 裸机 → Ansible 可管理 |
+
+### 关键设计决策（已审计确认 2026-03-22）
+
+- **sshd_config**: 基于 Debian 13 默认值 + hardening (key-only, PermitRootLogin no, AllowUsers kchou, X11Forwarding no)
+- **timesyncd**: NTP 源 ntp.aliyun.com + time.apple.com, FallbackNTP 为 Debian 官方
+- **sysctl**: `ip_forward=1` (与 Docker 兼容), 标准安全基线
+- **Docker 安装**: 完全对齐 Docker 官方 2026-03 文档 (deb822, GPG key, docker-ce + buildx + compose)
+- **无防火墙 role**: 家庭内网不需要, nftables 包仅作为系统工具安装
+
+### 部署顺序
 
 ```bash
-# 1. dry-run
+# 1. dry-run (首次部署前必须执行)
 ansible-playbook -i inventory/prod ansible/playbooks/baseline.yml --check --diff
 ansible-playbook -i inventory/prod ansible/playbooks/docker.yml --check --diff
 
@@ -76,6 +95,8 @@ ansible-playbook -i inventory/prod ansible/playbooks/docker.yml
 # 3. 验证
 ansible-playbook -i inventory/prod ansible/playbooks/verify.yml
 ```
+
+> ⚠️ 部署前确认: SSH key 已正确配置到 NAS (密码登录会被禁用)
 
 ---
 
@@ -163,7 +184,6 @@ graph TD
         F --> G[Caddy]
         F --> H[Uptime Kuma]
         F --> I[AI Runtime]
-        B --> J[nftables]
         B --> K[Restic Backup]
         B --> L[SMART/mdadm]
     end
@@ -171,14 +191,4 @@ graph TD
     subgraph "路由器 (iStoreOS)"
         M[EasyTier Gateway] -->|proxy 192.168.50.0/24| B
     end
-```
-
-## 当前 Git 历史
-
-```
-85ed6e0 feat(M1): 主机基线 roles + playbooks
-2c3f1b3 fix(ci): 排除第三方 role 的 ansible-lint 检查
-ecb62be fix(ci): yamllint 不支持 -e 参数，改用配置文件 ignore
-fc4790e fix(ci): 修复 CI 报错
-780b4ba M0: 初始化仓库骨架
 ```

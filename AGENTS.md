@@ -16,10 +16,13 @@ Gemini, etc.) when working with this repository.
 
 ## Quick Start for Agents
 
-1. Read `CLAUDE.md` for hard constraints and coding rules
-2. Read `nas-gitops-plan-v3.1-2026-03-21.md` for architecture context
-3. Check `docs/adr/` for recorded decisions before proposing alternatives
-4. Check `docs/runbooks/` before writing operational procedures
+1. **Read `docs/development-roadmap.md` first** — This is the Single
+   Source of Truth (SSOT) for project status, completed/pending work,
+   NAS actual state, CI structure, and design decisions
+2. Read `CLAUDE.md` for hard constraints and coding rules
+3. Read `AGENTS.md` (this file) for coding standards and conventions
+4. Check `docs/adr/` for recorded decisions before proposing alternatives
+5. Check `docs/runbooks/` before writing operational procedures
 
 ## What You Can Safely Do
 
@@ -142,9 +145,11 @@ bash policy/check-compose-policy.sh
 | Remote access | EasyTier | Already deployed, no redundant VPN |
 | Backup | Restic → local + B2 | 3-2-1 principle |
 | Network | Zero inbound exposure | LAN + EasyTier only |
+| Firewall | None (home LAN) | No nftables rules; package installed as system tool only |
 
 ## Related Documents
 
+- [Development Roadmap](docs/development-roadmap.md) — **SSOT**: project status, NAS state, CI, design decisions
 - [CLAUDE.md](CLAUDE.md) — Detailed coding rules and commands
 - [v3.1 Plan](nas-gitops-plan-v3.1-2026-03-21.md) — Full architecture plan
 - [Skills](.claude/skills/) — AI agent skills for Ansible development
