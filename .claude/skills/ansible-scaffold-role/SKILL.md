@@ -26,11 +26,10 @@ This is a **single-host NAS GitOps** project. Roles manage a Debian 13
 NAS with:
 - Docker Compose services
 - systemd timers for scheduled tasks
-- nftables firewall rules
 - Restic backups
 - sops + age encrypted secrets
 - Caddy reverse proxy
-- Access restricted to LAN / EasyTier only
+- Access restricted to LAN / EasyTier only (no firewall)
 
 ## Gather inputs
 
@@ -45,7 +44,6 @@ Ask the user for:
    - **Docker services** — deploys Docker Compose stacks
    - **Configuration files** — manages config via templates
    - **Scheduled tasks** — manages systemd timers
-   - **Firewall rules** — manages nftables rules
    - **Backup tasks** — manages Restic backup jobs
    - **Custom** — user describes freely
 
@@ -75,7 +73,6 @@ Create the role at `ansible/roles/<role_name>/` with:
   - `tasks/service.yml` — service management
   - `tasks/docker.yml` — Docker Compose deployment
   - `tasks/backup.yml` — backup job setup
-  - `tasks/firewall.yml` — nftables rules
 
 ### NAS-specific task patterns
 
@@ -132,9 +129,6 @@ Generate real handlers based on role purpose:
 - Timer roles: `Reload systemd`
 - Config roles: validate config then restart
 
-### `meta/argument_specs.yml`
-Define all arguments with types, descriptions, required flags.
-
 ### `meta/main.yml`
 Role metadata: author, description, license, min_ansible_version,
 platforms (Debian 13).
@@ -142,6 +136,78 @@ platforms (Debian 13).
 ### `templates/`
 Include `{{ ansible_managed | comment }}` header in all templates.
 Use `backup: true` in corresponding tasks.
+
+### `molecule/default/`
+
+Always scaffold Molecule test structure:
+
+`molecule.yml`:
+```yaml
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: ${MOLECULE_PROJECT_DIRECTORY}/../../../requirements.yml
+    force: false
+driver:
+  name: docker
+platforms:
+  - name: "nas-<role>-test"
+    image: "geerlingguy/docker-debian13-ansible:latest"
+    command: ""
+    pre_build_image: true
+    privileged: true
+    cgroupns_mode: host
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/.."
+  playbooks:
+    converge: converge.yml
+    verify: verify.yml
+  inventory:
+    host_vars:
+      nas-<role>-test:
+        # role-specific test variables
+verifier:
+  name: ansible
+```
+
+`converge.yml` must include systemd pre_tasks:
+```yaml
+---
+- name: Converge
+  hosts: all
+  become: true
+  gather_facts: true
+  pre_tasks:
+    - name: "Pre | Update apt cache"
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 600
+    - name: "Pre | Install systemd"
+      ansible.builtin.apt:
+        name: [systemd, python3]
+        state: present
+    - name: "Pre | Wait for systemd"
+      ansible.builtin.command:
+        cmd: systemctl is-system-running
+      register: __systemctl_status
+      until: >
+        'running' in __systemctl_status.stdout or
+        'degraded' in __systemctl_status.stdout
+      retries: 30
+      delay: 5
+      changed_when: false
+      failed_when: __systemctl_status.rc > 1
+  roles:
+    - role: <role_name>
+```
 
 ### `README.md`
 - Role description
@@ -157,9 +223,10 @@ Verify:
 - No dashes in role name
 - All variables role-name prefixed
 - Internal variables use `__` prefix
-- `argument_specs.yml` matches `defaults/main.yml`
-- All task names imperative
+- All task names imperative with `"Prefix | Description"` format
 - All modules use FQCN
 - YAML: 2-space indent, `true`/`false` booleans
 - Secrets use `no_log: true`
 - File permissions: `.env` files are `0600`
+- Molecule converge.yml has systemd pre_tasks
+- Molecule molecule.yml uses `MOLECULE_PROJECT_DIRECTORY` for roles_path

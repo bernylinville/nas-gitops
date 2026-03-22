@@ -50,8 +50,10 @@ Focus review on `ansible/` and `inventory/` only. Ignore `compose/`,
 - Playbooks MUST be idempotent — safe to re-run
 - All service `.env` files must be deployed with `mode: '0600'`
 - Docker daemon.json must include log rotation config
-- nftables rules must default to INPUT DROP
 - Services must bind to LAN/EasyTier IPs, never `0.0.0.0`
+- Restic env files must be deployed with `mode: '0400'`
+- systemd timer services should use `Nice` and `IOSchedulingClass`
+  for low system impact
 - Compose files referenced in playbooks must exist in `compose/`
 
 ## Review process
@@ -85,8 +87,11 @@ Focus review on `ansible/` and `inventory/` only. Ignore `compose/`,
    - **Documentation** — README with examples
    - **Security** — secrets handling, file permissions, no plaintext
      credentials
-   - **NAS-specific** — nftables rules, Docker config, service binding
-     addresses
+    - **NAS-specific** — Docker config, service binding addresses,
+      Restic backup config, systemd timer patterns
+    - **Molecule** — converge.yml with systemd pre_tasks,
+      `MOLECULE_PROJECT_DIRECTORY` for roles_path,
+      geerlingguy/docker-debian13-ansible image
 
 ## Severity levels
 
