@@ -4,8 +4,10 @@
   ansible.builtin.systemd:
     name: sshd
     state: restarted
+  when: ansible_virtualization_type | default('') != 'docker'
 
 - name: Restart systemd-timesyncd
   ansible.builtin.systemd:
     name: systemd-timesyncd
     state: restarted
+  when: ansible_virtualization_type | default('') != 'docker'

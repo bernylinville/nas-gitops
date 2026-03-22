@@ -3,6 +3,16 @@
 - name: "Time | Set timezone"
   community.general.timezone:
     name: "{{ baseline_timezone }}"
+    hwclock: UTC
+  when: ansible_virtualization_type | default('') != 'docker'
+
+- name: "Time | Set timezone symlink in container (fallback)"
+  ansible.builtin.file:
+    src: "/usr/share/zoneinfo/{{ baseline_timezone }}"
+    dest: /etc/localtime
+    state: link
+    force: true
+  when: ansible_virtualization_type | default('') == 'docker'
 
 - name: "Time | Configure systemd-timesyncd"
   ansible.builtin.template:
@@ -17,3 +27,4 @@
     name: systemd-timesyncd
     enabled: true
     state: started
+  when: ansible_virtualization_type | default('') != 'docker'

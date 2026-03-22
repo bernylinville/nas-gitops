@@ -13,7 +13,9 @@
     name: docker
     state: "{{ docker_service_state }}"
     enabled: "{{ docker_service_enabled }}"
-  when: docker_service_manage | bool
+  when:
+    - docker_service_manage | bool
+    - ansible_virtualization_type | default('') != 'docker'
 
 - name: "Docker | Flush handlers to avoid firewall conflicts"
   ansible.builtin.meta: flush_handlers
@@ -21,4 +23,6 @@
 - name: "Docker | Include user tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/users.yml"
-  when: docker_users | length > 0
+  when:
+    - docker_users | length > 0
+    - ansible_virtualization_type | default('') != 'docker'
