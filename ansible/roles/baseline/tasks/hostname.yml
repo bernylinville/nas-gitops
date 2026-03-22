@@ -1,13 +1,11 @@
 ---
 # baseline/tasks/hostname.yml — Set hostname
+- name: "Hostname | Check if running in container"
+  ansible.builtin.stat:
+    path: /.dockerenv
+  register: __baseline_dockerenv
+
 - name: "Hostname | Set system hostname"
   ansible.builtin.hostname:
     name: "{{ baseline_hostname }}"
-  when: ansible_virtualization_type | default('') != 'docker'
-
-- name: "Hostname | Set hostname in container (fallback)"
-  ansible.builtin.copy:
-    content: "{{ baseline_hostname }}"
-    dest: /etc/hostname
-    mode: "0644"
-  when: ansible_virtualization_type | default('') == 'docker'
+  when: not __baseline_dockerenv.stat.exists
