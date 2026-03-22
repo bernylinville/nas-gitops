@@ -1,15 +1,24 @@
 {{ ansible_managed | comment }}
 # /etc/ssh/sshd_config — Hardened SSH configuration
+# Based on Debian 13 (trixie) default + security hardening
+
+# Include drop-in configurations
+Include /etc/ssh/sshd_config.d/*.conf
 
 Port {{ baseline_ssh_port }}
 ListenAddress {{ nas_lan_ip }}
 AddressFamily inet
 
+# Host keys
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
 # Authentication
 PermitRootLogin {{ baseline_ssh_permit_root_login }}
 PubkeyAuthentication {{ baseline_ssh_pubkey_authentication }}
 PasswordAuthentication {{ baseline_ssh_password_authentication }}
-ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
 UsePAM yes
 MaxAuthTries {{ baseline_ssh_max_auth_tries }}
 AllowUsers {{ baseline_ssh_allow_users }}
@@ -19,6 +28,7 @@ ClientAliveInterval {{ baseline_ssh_client_alive_interval }}
 ClientAliveCountMax {{ baseline_ssh_client_alive_count_max }}
 LoginGraceTime 30
 MaxStartups 3:50:10
+PrintMotd no
 
 # Security
 X11Forwarding no
@@ -28,6 +38,9 @@ PermitTunnel no
 PermitUserEnvironment no
 HostbasedAuthentication no
 IgnoreRhosts yes
+
+# Environment — preserve locale and terminal color support
+AcceptEnv LANG LC_* COLORTERM NO_COLOR
 
 # Logging
 SyslogFacility AUTH
