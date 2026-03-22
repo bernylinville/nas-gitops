@@ -171,7 +171,7 @@ cd /opt/compose/platform/uptime-kuma && docker compose up -d
 |:------:|------|:----:|------|
 | P1 | 部署标签自动化 | ✅ | `scripts/tag-deploy.sh` |
 | P2 | ADR 文档体系 | ✅ | `docs/adr/` 7 个 ADR 补录 |
-| P1 | NAS 本地 Git 镜像 | ⬚ | systemd timer daily mirror 到 /data |
+| P1 | NAS 本地 Git 镜像 | ✅ | `git-mirror.yml` systemd timer daily |
 | P2 | Grafana + node-exporter | ⬚ | 可视化监控 (补充 Uptime Kuma) |
 | P3 | EasyTier NAS 端部署 | ⏸ | 暂缓，路由器代理方案稳定 |
 | P3 | Ansible Vault migration | ⏸ | 暂缓，sops+age 满足需求 |
