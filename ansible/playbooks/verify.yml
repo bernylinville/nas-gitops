@@ -44,30 +44,6 @@
           - "'passwordauthentication no' in __verify_sshd_config.stdout"
         fail_msg: "SSH password authentication is still enabled!"
 
-    # === Firewall ===
-    - name: "Verify | Check nftables is active"
-      ansible.builtin.systemd:
-        name: nftables
-      register: __verify_nftables
-      changed_when: false
-
-    - name: "Verify | Assert nftables is active"
-      ansible.builtin.assert:
-        that:
-          - __verify_nftables.status.ActiveState == "active"
-
-    - name: "Verify | Check nftables rules loaded"
-      ansible.builtin.command:
-        cmd: nft list ruleset
-      register: __verify_nft_rules
-      changed_when: false
-
-    - name: "Verify | Assert INPUT policy is drop"
-      ansible.builtin.assert:
-        that:
-          - "'policy drop' in __verify_nft_rules.stdout"
-        fail_msg: "nftables INPUT policy is not drop!"
-
     # === Docker ===
     - name: "Verify | Check Docker is installed"
       ansible.builtin.command:
@@ -149,7 +125,6 @@
           === NAS Baseline Verification Summary ===
           Hostname:  {{ __verify_hostname.stdout }}
           SSH:       {{ __verify_sshd.status.ActiveState }}
-          Firewall:  {{ __verify_nftables.status.ActiveState }}
           Docker:    {{ __verify_docker_svc.status.ActiveState | default('not installed') }}
           RAID:      {{ 'healthy' if '[UU]' in __verify_raid.stdout else 'DEGRADED' }}
           SMART:     {{ __verify_smartd.status.ActiveState }}

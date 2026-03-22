@@ -23,7 +23,6 @@ jobs:
         role:
           - baseline
           - docker
-          - nftables
           - monitoring
 
     steps:

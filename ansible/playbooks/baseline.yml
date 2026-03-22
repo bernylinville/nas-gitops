@@ -8,5 +8,4 @@
 
   roles:
     - role: baseline
-    - role: nftables
     - role: monitoring

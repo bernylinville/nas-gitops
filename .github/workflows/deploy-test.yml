@@ -70,7 +70,6 @@ jobs:
             - jq
             - tree
           monitoring_smart_devices: []
-          nftables_extra_tcp_ports: []
           docker_users: []
           EOF
 
