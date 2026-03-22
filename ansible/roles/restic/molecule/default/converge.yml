@@ -2,11 +2,32 @@
 - name: Converge
   hosts: all
   become: true
-  vars:
-    restic_repo_password: "test-password-for-ci"
-    restic_repo_path: "/tmp/restic-test-repo"
-    restic_backup_paths:
-      - /etc
-    restic_timer_oncalendar: "*-*-* 03:00:00"
+  gather_facts: true
+
+  pre_tasks:
+    - name: "Pre | Update apt cache"
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 600
+
+    - name: "Pre | Install systemd (required in container)"
+      ansible.builtin.apt:
+        name:
+          - systemd
+          - python3
+        state: present
+
+    - name: "Pre | Wait for systemd initialization"
+      ansible.builtin.command:
+        cmd: systemctl is-system-running
+      register: __restic_systemctl_status
+      until: >
+        'running' in __restic_systemctl_status.stdout or
+        'degraded' in __restic_systemctl_status.stdout
+      retries: 30
+      delay: 5
+      changed_when: false
+      failed_when: __restic_systemctl_status.rc > 1
+
   roles:
     - role: restic

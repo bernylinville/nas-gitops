@@ -1,6 +1,9 @@
 ---
 dependency:
   name: galaxy
+  options:
+    requirements-file: ${MOLECULE_PROJECT_DIRECTORY}/../../../requirements.yml
+    force: false
 driver:
   name: docker
 platforms:
@@ -18,6 +21,17 @@ platforms:
 provisioner:
   name: ansible
   env:
-    ANSIBLE_ROLES_PATH: "../../../../ansible/roles"
+    ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/.."
+  playbooks:
+    converge: converge.yml
+    verify: verify.yml
+  inventory:
+    host_vars:
+      nas-restic-test:
+        restic_repo_password: "test-password-for-ci"
+        restic_repo_path: "/tmp/restic-test-repo"
+        restic_backup_paths:
+          - /etc
+        restic_timer_oncalendar: "*-*-* 03:00:00"
 verifier:
   name: ansible
