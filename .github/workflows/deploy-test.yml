@@ -128,6 +128,14 @@ jobs:
             --syntax-check \
             -e "ansible_roles_path=ansible/roles"
 
+      - name: "Syntax check: git-mirror.yml"
+        run: |
+          ansible-playbook \
+            -i /tmp/test-inventory \
+            ansible/playbooks/git-mirror.yml \
+            --syntax-check \
+            -e "ansible_roles_path=ansible/roles"
+
       # Informational: dry-run may fail on Ubuntu (not Debian 13)
       - name: "Dry-run: baseline.yml (--check --diff)"
         continue-on-error: true

@@ -1,0 +1,104 @@
+---
+# git-mirror.yml — Deploy git mirror sync to NAS
+# Usage: ansible-playbook -i inventory/prod ansible/playbooks/git-mirror.yml
+- name: Setup git mirror sync
+  hosts: nas
+  become: true
+  gather_facts: false
+
+  vars:
+    git_mirror_dir: /data/git-mirrors
+    git_mirror_conf_dir: /etc/git-mirror
+    git_mirror_repos:
+      - "https://github.com/bernylinville/nas-gitops.git"
+
+  tasks:
+    - name: "Mirror | Install git"
+      ansible.builtin.apt:
+        name: git
+        state: present
+
+    - name: "Mirror | Create mirror directory"
+      ansible.builtin.file:
+        path: "{{ git_mirror_dir }}"
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: "Mirror | Create config directory"
+      ansible.builtin.file:
+        path: "{{ git_mirror_conf_dir }}"
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: "Mirror | Deploy repos config"
+      ansible.builtin.copy:
+        dest: "{{ git_mirror_conf_dir }}/repos.conf"
+        content: |
+          # Git mirror repository list — Managed by Ansible
+          {% for repo in git_mirror_repos %}
+          {{ repo }}
+          {% endfor %}
+        mode: "0644"
+
+    - name: "Mirror | Deploy sync script"
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../scripts/git-mirror-sync.sh"
+        dest: /usr/local/bin/git-mirror-sync
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: "Mirror | Deploy systemd service"
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/git-mirror.service
+        content: |
+          [Unit]
+          Description=Sync git mirror repositories
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/git-mirror-sync
+          Environment=GIT_MIRROR_DIR={{ git_mirror_dir }}
+          Environment=GIT_MIRROR_CONF={{ git_mirror_conf_dir }}/repos.conf
+          Nice=19
+          IOSchedulingClass=idle
+        mode: "0644"
+      notify: "Reload systemd"
+
+    - name: "Mirror | Deploy systemd timer"
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/git-mirror.timer
+        content: |
+          [Unit]
+          Description=Daily git mirror sync
+
+          [Timer]
+          OnCalendar=*-*-* 04:00:00
+          RandomizedDelaySec=1800
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+        mode: "0644"
+      notify: "Reload systemd"
+
+    - name: "Mirror | Flush handlers"
+      ansible.builtin.meta: flush_handlers
+
+    - name: "Mirror | Enable and start timer"
+      ansible.builtin.systemd:
+        name: git-mirror.timer
+        state: started
+        enabled: true
+        daemon_reload: true
+
+  handlers:
+    - name: "Reload systemd"
+      ansible.builtin.systemd:
+        daemon_reload: true
