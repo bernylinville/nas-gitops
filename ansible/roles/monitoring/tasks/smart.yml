@@ -1,18 +1,18 @@
 ---
 # monitoring/tasks/smart.yml — SMART monitoring with smartmontools
-- name: "smart | Install smartmontools"
+- name: "Smart | Install smartmontools"
   ansible.builtin.apt:
     name: smartmontools
     state: present
 
-- name: "smart | Enable SMART on data disks"
+- name: "Smart | Enable SMART on data disks"
   ansible.builtin.command:
     cmd: "smartctl -s on {{ item }}"
   loop: "{{ monitoring_smart_devices }}"
   changed_when: false
   failed_when: false
 
-- name: "smart | Deploy smartd configuration"
+- name: "Smart | Deploy smartd configuration"
   ansible.builtin.template:
     src: smartd.conf.j2
     dest: /etc/smartd.conf
@@ -20,7 +20,7 @@
     backup: true
   notify: Restart smartd
 
-- name: "smart | Enable and start smartd"
+- name: "Smart | Enable and start smartd"
   ansible.builtin.systemd:
     name: smartd
     enabled: true

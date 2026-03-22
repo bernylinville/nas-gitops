@@ -4,15 +4,13 @@ exclude_paths:
   - .venv/
   - .github/
   - claude-ansible-skills-main/
-  - ansible/roles/geerlingguy.docker/
 
 skip_list:
-  - galaxy  # Non-collection project
-  - name[casing]  # Our convention: "prefix | Action" where prefix is lowercase file name
-  - ignore-errors  # Used in verify.yml for non-critical checks
+  - galaxy  # Non-collection project — this repo is not an Ansible Galaxy collection
 
 warn_list:
   - experimental
+  - command-instead-of-module  # molecule pre_tasks legitimately use systemctl is-system-running
 
 enable_list:
   - fqcn

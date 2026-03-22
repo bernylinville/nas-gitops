@@ -1,6 +1,6 @@
 ---
 # baseline/tasks/sysctl.yml — Kernel parameter tuning
-- name: "sysctl | Apply sysctl settings"
+- name: "Sysctl | Apply sysctl settings"
   ansible.posix.sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"

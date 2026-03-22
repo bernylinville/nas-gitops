@@ -1,10 +1,10 @@
 ---
 # baseline/tasks/time.yml — Timezone and NTP configuration
-- name: "time | Set timezone"
+- name: "Time | Set timezone"
   community.general.timezone:
     name: "{{ baseline_timezone }}"
 
-- name: "time | Configure systemd-timesyncd"
+- name: "Time | Configure systemd-timesyncd"
   ansible.builtin.template:
     src: timesyncd.conf.j2
     dest: /etc/systemd/timesyncd.conf
@@ -12,7 +12,7 @@
     backup: true
   notify: Restart systemd-timesyncd
 
-- name: "time | Enable and start systemd-timesyncd"
+- name: "Time | Enable and start systemd-timesyncd"
   ansible.builtin.systemd:
     name: systemd-timesyncd
     enabled: true

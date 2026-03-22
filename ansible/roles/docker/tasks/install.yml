@@ -1,0 +1,59 @@
+---
+# docker/tasks/install.yml — Install Docker CE on Debian
+# Reference: geerlingguy.docker setup-Debian.yml
+
+- name: "Install | Ensure old apt key is not present"
+  ansible.builtin.file:
+    path: /etc/apt/trusted.gpg.d/docker.asc
+    state: absent
+
+- name: "Install | Remove old apt source list files"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/download_docker_com_linux_debian.list
+    - /etc/apt/sources.list.d/docker.list
+
+- name: "Install | Remove obsolete Docker packages"
+  ansible.builtin.apt:
+    name: "{{ docker_obsolete_packages }}"
+    state: absent
+
+- name: "Install | Install repository dependencies"
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - python3-debian
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: "Install | Add Docker apt repository (deb822 format)"
+  ansible.builtin.deb822_repository:
+    name: "{{ docker_apt_filename }}"
+    types: deb
+    uris: "{{ docker_repo_url }}/debian"
+    suites: "{{ ansible_facts.distribution_release }}"
+    components: "{{ docker_apt_release_channel }}"
+    signed_by: "{{ docker_apt_gpg_key }}"
+    state: "{{ 'present' if docker_add_repo | bool else 'absent' }}"
+  notify: Docker apt update
+  when: docker_add_repo | bool
+
+- name: "Install | Flush handlers to update apt cache"
+  ansible.builtin.meta: flush_handlers
+
+- name: "Install | Install Docker packages"
+  ansible.builtin.apt:
+    name: "{{ docker_packages }}"
+    state: "{{ docker_packages_state }}"
+    allow_downgrade: true
+  notify: Restart docker
+
+- name: "Install | Install Docker Compose plugin"
+  ansible.builtin.apt:
+    name: "{{ docker_compose_package }}"
+    state: "{{ docker_compose_package_state }}"
+    allow_downgrade: true
+  when: docker_install_compose_plugin | bool

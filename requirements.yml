@@ -1,8 +1,6 @@
 ---
-# requirements.yml — External Ansible roles and collections
-roles:
-  - name: geerlingguy.docker
-    version: "8.0.0"
+# requirements.yml — External Ansible collections
+# Note: Docker role is now self-built under ansible/roles/docker/
 
 collections:
   - name: ansible.posix

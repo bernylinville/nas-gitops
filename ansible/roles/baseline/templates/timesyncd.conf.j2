@@ -1,4 +1,13 @@
 {{ ansible_managed | comment }}
+#
 # /etc/systemd/timesyncd.conf — NTP configuration
+# Based on Debian 13 (trixie) default format
+#
+# See timesyncd.conf(5) for details.
+
 [Time]
 NTP={{ baseline_ntp_servers | join(' ') }}
+FallbackNTP={{ baseline_ntp_fallback_servers | join(' ') }}
+RootDistanceMaxSec={{ baseline_ntp_root_distance_max_sec }}
+PollIntervalMinSec={{ baseline_ntp_poll_interval_min_sec }}
+PollIntervalMaxSec={{ baseline_ntp_poll_interval_max_sec }}

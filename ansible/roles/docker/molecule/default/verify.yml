@@ -1,0 +1,71 @@
+---
+- name: Verify Docker role
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: "Verify | Check Docker repo file exists"
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/docker.sources
+      register: __docker_verify_repo
+
+    - name: "Verify | Assert Docker repo is configured"
+      ansible.builtin.assert:
+        that:
+          - __docker_verify_repo.stat.exists
+
+    - name: "Verify | Check Docker binary is available"
+      ansible.builtin.command:
+        cmd: docker version
+      register: __docker_verify_docker
+      changed_when: false
+      failed_when: __docker_verify_docker.rc != 0
+
+    - name: "Verify | Show Docker version"
+      ansible.builtin.debug:
+        msg: "{{ __docker_verify_docker.stdout_lines | join('\n') }}"
+
+    - name: "Verify | Check daemon.json exists"
+      ansible.builtin.stat:
+        path: /etc/docker/daemon.json
+      register: __docker_verify_daemon_json
+
+    - name: "Verify | Assert daemon.json exists"
+      ansible.builtin.assert:
+        that:
+          - __docker_verify_daemon_json.stat.exists
+
+    - name: "Verify | Check daemon.json content"
+      ansible.builtin.command:
+        cmd: cat /etc/docker/daemon.json
+      register: __docker_verify_daemon_content
+      changed_when: false
+
+    - name: "Verify | Assert log-driver is local"
+      ansible.builtin.assert:
+        that:
+          - "'local' in __docker_verify_daemon_content.stdout"
+
+    - name: "Verify | Check Docker Compose plugin"
+      ansible.builtin.command:
+        cmd: docker compose version
+      register: __docker_verify_compose
+      changed_when: false
+      failed_when: false
+
+    - name: "Verify | Show Compose version"
+      ansible.builtin.debug:
+        msg: "{{ __docker_verify_compose.stdout | default('not installed') }}"
+
+    - name: "Verify | Check obsolete packages are removed"
+      ansible.builtin.command:
+        cmd: "dpkg -l docker.io"
+      register: __docker_verify_obsolete
+      changed_when: false
+      failed_when: false
+
+    - name: "Verify | Assert docker.io is not installed"
+      ansible.builtin.assert:
+        that:
+          - __docker_verify_obsolete.rc != 0

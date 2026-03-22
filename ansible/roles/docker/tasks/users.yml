@@ -1,0 +1,17 @@
+---
+# docker/tasks/users.yml — Manage docker group membership
+# Reference: geerlingguy.docker docker-users.yml
+
+- name: "Users | Get docker group info"
+  ansible.builtin.getent:
+    database: group
+    key: docker
+    split: ":"
+
+- name: "Users | Add users to docker group"
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  loop: "{{ docker_users }}"
+  when: item not in ansible_facts.getent_group["docker"][2]

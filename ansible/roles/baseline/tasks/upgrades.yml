@@ -1,13 +1,13 @@
 ---
 # baseline/tasks/upgrades.yml — Unattended security upgrades
-- name: "upgrades | Install unattended-upgrades"
+- name: "Upgrades | Install unattended-upgrades"
   ansible.builtin.apt:
     name:
       - unattended-upgrades
       - apt-listchanges
     state: present
 
-- name: "upgrades | Enable unattended-upgrades (security only)"
+- name: "Upgrades | Enable unattended-upgrades (security only)"
   ansible.builtin.copy:
     dest: /etc/apt/apt.conf.d/50unattended-upgrades
     content: |
@@ -21,7 +21,7 @@
     mode: "0644"
     backup: true
 
-- name: "upgrades | Enable auto-upgrade timer"
+- name: "Upgrades | Enable auto-upgrade timer"
   ansible.builtin.copy:
     dest: /etc/apt/apt.conf.d/20auto-upgrades
     content: |

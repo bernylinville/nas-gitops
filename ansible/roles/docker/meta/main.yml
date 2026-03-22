@@ -1,0 +1,12 @@
+---
+# docker/meta/main.yml
+galaxy_info:
+  author: "Berny Linville"
+  description: "Docker CE installation for Debian NAS (based on geerlingguy.docker patterns)"
+  license: "MIT"
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Debian
+      versions:
+        - trixie
+dependencies: []

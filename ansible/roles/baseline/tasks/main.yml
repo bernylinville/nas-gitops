@@ -1,25 +1,25 @@
 ---
 # baseline/tasks/main.yml — Main task entry point
-- name: "baseline | Include package tasks"
+- name: "Baseline | Include package tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/packages.yml"
 
-- name: "baseline | Include hostname tasks"
+- name: "Baseline | Include hostname tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/hostname.yml"
 
-- name: "baseline | Include timezone and NTP tasks"
+- name: "Baseline | Include timezone and NTP tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/time.yml"
 
-- name: "baseline | Include SSH hardening tasks"
+- name: "Baseline | Include SSH hardening tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/ssh.yml"
 
-- name: "baseline | Include sysctl tasks"
+- name: "Baseline | Include sysctl tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/sysctl.yml"
 
-- name: "baseline | Include unattended-upgrades tasks"
+- name: "Baseline | Include unattended-upgrades tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/upgrades.yml"

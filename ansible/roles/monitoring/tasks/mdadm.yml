@@ -1,11 +1,11 @@
 ---
 # monitoring/tasks/mdadm.yml — mdadm RAID monitoring
-- name: "mdadm | Install mdadm"
+- name: "Mdadm | Install mdadm"
   ansible.builtin.apt:
     name: mdadm
     state: present
 
-- name: "mdadm | Configure mdadm monitoring"
+- name: "Mdadm | Configure mdadm monitoring"
   ansible.builtin.lineinfile:
     path: /etc/mdadm/mdadm.conf
     regexp: "^MAILADDR"
@@ -13,13 +13,13 @@
     backup: true
   notify: Restart mdadm-monitor
 
-- name: "mdadm | Enable mdadm monitor"
+- name: "Mdadm | Enable mdadm monitor"
   ansible.builtin.systemd:
     name: mdmonitor
     enabled: true
     state: started
 
-- name: "mdadm | Enable mdcheck timer"
+- name: "Mdadm | Enable mdcheck timer"
   ansible.builtin.systemd:
     name: mdcheck_start.timer
     enabled: true

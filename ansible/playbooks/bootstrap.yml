@@ -7,11 +7,11 @@
   gather_facts: true
 
   tasks:
-    - name: "bootstrap | Update apt cache"
+    - name: "Bootstrap | Update apt cache"
       ansible.builtin.apt:
         update_cache: true
 
-    - name: "bootstrap | Install Python3 and essential packages"
+    - name: "Bootstrap | Install Python3 and essential packages"
       ansible.builtin.apt:
         name:
           - python3
@@ -22,7 +22,7 @@
           - git
         state: present
 
-    - name: "bootstrap | Ensure deploy user has sudo access"
+    - name: "Bootstrap | Ensure deploy user has sudo access"
       ansible.builtin.lineinfile:
         path: /etc/sudoers.d/kchou
         line: "kchou ALL=(ALL) NOPASSWD: ALL"

@@ -1,0 +1,34 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: "Pre | Update apt cache"
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 600
+
+    - name: "Pre | Install systemd"
+      ansible.builtin.apt:
+        name:
+          - systemd
+          - python3
+          - ca-certificates
+        state: present
+
+    - name: "Pre | Wait for systemd initialization"
+      ansible.builtin.command:
+        cmd: systemctl is-system-running
+      register: __docker_systemctl_status
+      until: >
+        'running' in __docker_systemctl_status.stdout or
+        'degraded' in __docker_systemctl_status.stdout
+      retries: 30
+      delay: 5
+      changed_when: false
+      failed_when: __docker_systemctl_status.rc > 1
+
+  roles:
+    - role: docker

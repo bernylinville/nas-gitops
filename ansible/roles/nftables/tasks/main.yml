@@ -1,11 +1,11 @@
 ---
 # nftables/tasks/main.yml — Configure nftables firewall
-- name: "nftables | Install nftables"
+- name: "Nftables | Install nftables"
   ansible.builtin.apt:
     name: nftables
     state: present
 
-- name: "nftables | Deploy nftables configuration"
+- name: "Nftables | Deploy nftables configuration"
   ansible.builtin.template:
     src: nftables.conf.j2
     dest: /etc/nftables.conf
@@ -14,13 +14,13 @@
     validate: "nft -c -f %s"
   notify: Reload nftables
 
-- name: "nftables | Enable and start nftables"
+- name: "Nftables | Enable and start nftables"
   ansible.builtin.systemd:
     name: nftables
     enabled: true
     state: started
 
-- name: "nftables | Disable ufw if present"
+- name: "Nftables | Disable ufw if present"
   ansible.builtin.systemd:
     name: ufw
     enabled: false

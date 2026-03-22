@@ -1,0 +1,16 @@
+---
+# docker/tasks/configure.yml — Docker daemon configuration
+- name: "Configure | Ensure /etc/docker directory exists"
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: "0755"
+
+- name: "Configure | Deploy daemon.json"
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+    backup: true
+  notify: Restart docker
+  when: docker_daemon_options | length > 0

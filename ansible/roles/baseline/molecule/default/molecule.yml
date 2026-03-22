@@ -1,0 +1,41 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: ${MOLECULE_PROJECT_DIRECTORY}/../../../requirements.yml
+    force: false
+driver:
+  name: docker
+platforms:
+  - name: "nas-baseline-test"
+    image: "debian:trixie"
+    command: "/sbin/init"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    privileged: true
+    pre_build_image: true
+    tmpfs:
+      - /run
+      - /tmp
+provisioner:
+  name: ansible
+  playbooks:
+    converge: converge.yml
+    verify: verify.yml
+  inventory:
+    host_vars:
+      nas-baseline-test:
+        nas_lan_ip: "127.0.0.1"
+        nas_lan_subnet: "127.0.0.0/8"
+        nas_hostname: "nas-test"
+        nas_ssh_port: 22
+        nas_ssh_allow_users: "root"
+        nas_timezone: "UTC"
+        nas_ntp_servers:
+          - "0.debian.pool.ntp.org"
+        baseline_packages:
+          - curl
+          - git
+verifier:
+  name: ansible

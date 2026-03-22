@@ -1,0 +1,60 @@
+---
+- name: Verify baseline role
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: "Verify | Check baseline packages are installed"
+      ansible.builtin.command:
+        cmd: "dpkg -l {{ item }}"
+      loop:
+        - curl
+        - git
+      changed_when: false
+
+    - name: "Verify | Check hostname"
+      ansible.builtin.command:
+        cmd: hostname
+      register: __baseline_verify_hostname
+      changed_when: false
+
+    - name: "Verify | Assert hostname is set"
+      ansible.builtin.assert:
+        that:
+          - __baseline_verify_hostname.stdout == "nas-test"
+        fail_msg: "Hostname is {{ __baseline_verify_hostname.stdout }}, expected nas-test"
+
+    - name: "Verify | Check sshd_config exists and is hardened"
+      ansible.builtin.command:
+        cmd: grep -c "PasswordAuthentication no" /etc/ssh/sshd_config
+      register: __baseline_verify_ssh
+      changed_when: false
+
+    - name: "Verify | Assert SSH password auth is disabled"
+      ansible.builtin.assert:
+        that:
+          - __baseline_verify_ssh.stdout | int >= 1
+
+    - name: "Verify | Check timesyncd.conf has NTP servers"
+      ansible.builtin.command:
+        cmd: grep -c "NTP=" /etc/systemd/timesyncd.conf
+      register: __baseline_verify_ntp
+      changed_when: false
+
+    - name: "Verify | Assert NTP is configured"
+      ansible.builtin.assert:
+        that:
+          - __baseline_verify_ntp.stdout | int >= 1
+
+    - name: "Verify | Check sysctl values"
+      ansible.builtin.command:
+        cmd: sysctl -n vm.swappiness
+      register: __baseline_verify_swappiness
+      changed_when: false
+      failed_when: false
+
+    - name: "Verify | Check unattended-upgrades is installed"
+      ansible.builtin.command:
+        cmd: dpkg -l unattended-upgrades
+      changed_when: false

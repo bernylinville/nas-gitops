@@ -1,0 +1,34 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: "Pre | Update apt cache"
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 600
+
+    - name: "Pre | Install systemd and nftables"
+      ansible.builtin.apt:
+        name:
+          - systemd
+          - nftables
+          - python3
+        state: present
+
+    - name: "Pre | Wait for systemd initialization"
+      ansible.builtin.command:
+        cmd: systemctl is-system-running
+      register: __nftables_systemctl_status
+      until: >
+        'running' in __nftables_systemctl_status.stdout or
+        'degraded' in __nftables_systemctl_status.stdout
+      retries: 30
+      delay: 5
+      changed_when: false
+      failed_when: __nftables_systemctl_status.rc > 1
+
+  roles:
+    - role: nftables

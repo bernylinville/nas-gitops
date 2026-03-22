@@ -3,6 +3,14 @@
 baseline_timezone: "{{ nas_timezone | default('Asia/Shanghai') }}"
 
 baseline_ntp_servers: "{{ nas_ntp_servers | default(['ntp.aliyun.com', 'time.apple.com']) }}"
+baseline_ntp_fallback_servers:
+  - "0.debian.pool.ntp.org"
+  - "1.debian.pool.ntp.org"
+  - "2.debian.pool.ntp.org"
+  - "3.debian.pool.ntp.org"
+baseline_ntp_root_distance_max_sec: 5
+baseline_ntp_poll_interval_min_sec: 32
+baseline_ntp_poll_interval_max_sec: 2048
 
 baseline_hostname: "{{ nas_hostname | default('nas') }}"
 

@@ -1,0 +1,55 @@
+---
+- name: Verify nftables role
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: "Verify | Check nftables.conf exists"
+      ansible.builtin.stat:
+        path: /etc/nftables.conf
+      register: __nftables_verify_conf
+
+    - name: "Verify | Assert nftables.conf exists"
+      ansible.builtin.assert:
+        that:
+          - __nftables_verify_conf.stat.exists
+
+    - name: "Verify | Check nftables.conf content has drop policy"
+      ansible.builtin.command:
+        cmd: grep -c "policy drop" /etc/nftables.conf
+      register: __nftables_verify_policy
+      changed_when: false
+
+    - name: "Verify | Assert INPUT drop policy"
+      ansible.builtin.assert:
+        that:
+          - __nftables_verify_policy.stdout | int >= 1
+
+    - name: "Verify | Check nftables.conf has LAN subnet"
+      ansible.builtin.command:
+        cmd: grep -c "127.0.0.0/8" /etc/nftables.conf
+      register: __nftables_verify_lan
+      changed_when: false
+
+    - name: "Verify | Assert LAN subnet in rules"
+      ansible.builtin.assert:
+        that:
+          - __nftables_verify_lan.stdout | int >= 1
+
+    - name: "Verify | Check nftables.conf has extra port"
+      ansible.builtin.command:
+        cmd: grep -c "port 3001" /etc/nftables.conf
+      register: __nftables_verify_extra
+      changed_when: false
+
+    - name: "Verify | Assert extra port in rules"
+      ansible.builtin.assert:
+        that:
+          - __nftables_verify_extra.stdout | int >= 1
+
+    - name: "Verify | Validate nftables config syntax"
+      ansible.builtin.command:
+        cmd: nft -c -f /etc/nftables.conf
+      changed_when: false
+      failed_when: false

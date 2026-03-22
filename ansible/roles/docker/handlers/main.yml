@@ -1,0 +1,11 @@
+---
+# docker/handlers/main.yml
+- name: Restart docker
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+  when: docker_service_manage | bool
+
+- name: Docker apt update
+  ansible.builtin.apt:
+    update_cache: true

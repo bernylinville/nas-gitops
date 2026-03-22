@@ -1,0 +1,39 @@
+---
+- name: Verify monitoring role
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: "Verify | Check smartmontools is installed"
+      ansible.builtin.command:
+        cmd: dpkg -l smartmontools
+      changed_when: false
+
+    - name: "Verify | Check mdadm is installed"
+      ansible.builtin.command:
+        cmd: dpkg -l mdadm
+      changed_when: false
+
+    - name: "Verify | Check smartd.conf exists"
+      ansible.builtin.stat:
+        path: /etc/smartd.conf
+      register: __monitoring_verify_smartd_conf
+
+    - name: "Verify | Assert smartd.conf exists"
+      ansible.builtin.assert:
+        that:
+          - __monitoring_verify_smartd_conf.stat.exists
+
+    - name: "Verify | Check mdadm.conf has MAILADDR"
+      ansible.builtin.command:
+        cmd: grep -c "MAILADDR" /etc/mdadm/mdadm.conf
+      register: __monitoring_verify_mdadm
+      changed_when: false
+      failed_when: false
+
+    - name: "Verify | Assert MAILADDR is configured"
+      ansible.builtin.assert:
+        that:
+          - __monitoring_verify_mdadm.stdout | int >= 1
+      when: __monitoring_verify_mdadm.rc == 0

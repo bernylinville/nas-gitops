@@ -8,95 +8,95 @@
 
   tasks:
     # === System ===
-    - name: "verify | Check hostname"
+    - name: "Verify | Check hostname"
       ansible.builtin.command:
         cmd: hostname
       register: __verify_hostname
       changed_when: false
 
-    - name: "verify | Assert hostname"
+    - name: "Verify | Assert hostname"
       ansible.builtin.assert:
         that:
           - __verify_hostname.stdout == nas_hostname
         fail_msg: "Hostname mismatch: {{ __verify_hostname.stdout }}"
 
     # === SSH ===
-    - name: "verify | Check sshd is running"
+    - name: "Verify | Check sshd is running"
       ansible.builtin.systemd:
         name: sshd
       register: __verify_sshd
       changed_when: false
 
-    - name: "verify | Assert sshd is active"
+    - name: "Verify | Assert sshd is active"
       ansible.builtin.assert:
         that:
           - __verify_sshd.status.ActiveState == "active"
 
-    - name: "verify | Check SSH password auth is disabled"
+    - name: "Verify | Check SSH password auth is disabled"
       ansible.builtin.command:
         cmd: sshd -T
       register: __verify_sshd_config
       changed_when: false
 
-    - name: "verify | Assert password auth disabled"
+    - name: "Verify | Assert password auth disabled"
       ansible.builtin.assert:
         that:
           - "'passwordauthentication no' in __verify_sshd_config.stdout"
         fail_msg: "SSH password authentication is still enabled!"
 
     # === Firewall ===
-    - name: "verify | Check nftables is active"
+    - name: "Verify | Check nftables is active"
       ansible.builtin.systemd:
         name: nftables
       register: __verify_nftables
       changed_when: false
 
-    - name: "verify | Assert nftables is active"
+    - name: "Verify | Assert nftables is active"
       ansible.builtin.assert:
         that:
           - __verify_nftables.status.ActiveState == "active"
 
-    - name: "verify | Check nftables rules loaded"
+    - name: "Verify | Check nftables rules loaded"
       ansible.builtin.command:
         cmd: nft list ruleset
       register: __verify_nft_rules
       changed_when: false
 
-    - name: "verify | Assert INPUT policy is drop"
+    - name: "Verify | Assert INPUT policy is drop"
       ansible.builtin.assert:
         that:
           - "'policy drop' in __verify_nft_rules.stdout"
         fail_msg: "nftables INPUT policy is not drop!"
 
     # === Docker ===
-    - name: "verify | Check Docker is installed"
+    - name: "Verify | Check Docker is installed"
       ansible.builtin.command:
         cmd: docker --version
       register: __verify_docker
       changed_when: false
       failed_when: false
 
-    - name: "verify | Check Docker daemon is running"
+    - name: "Verify | Check Docker daemon is running"
       ansible.builtin.systemd:
         name: docker
       register: __verify_docker_svc
       changed_when: false
       when: __verify_docker.rc == 0
 
-    - name: "verify | Assert Docker is active"
+    - name: "Verify | Assert Docker is active"
       ansible.builtin.assert:
         that:
           - __verify_docker_svc.status.ActiveState == "active"
       when: __verify_docker.rc == 0
 
-    - name: "verify | Check Docker log driver"
+    - name: "Verify | Check Docker log driver"
       ansible.builtin.command:
         cmd: docker info --format '{% raw %}{{ .LoggingDriver }}{% endraw %}'
       register: __verify_docker_log
       changed_when: false
       when: __verify_docker.rc == 0
 
-    - name: "verify | Assert Docker log driver is local"
+    - name: "Verify | Assert Docker log driver is local"
       ansible.builtin.assert:
         that:
           - __verify_docker_log.stdout == "local"
@@ -104,46 +104,46 @@
       when: __verify_docker.rc == 0
 
     # === RAID ===
-    - name: "verify | Check RAID status"
+    - name: "Verify | Check RAID status"
       ansible.builtin.command:
         cmd: cat /proc/mdstat
       register: __verify_raid
       changed_when: false
 
-    - name: "verify | Assert RAID is healthy (UU)"
+    - name: "Verify | Assert RAID is healthy (UU)"
       ansible.builtin.assert:
         that:
           - "'[UU]' in __verify_raid.stdout"
         fail_msg: "RAID is degraded! {{ __verify_raid.stdout }}"
 
     # === SMART ===
-    - name: "verify | Check smartd is running"
+    - name: "Verify | Check smartd is running"
       ansible.builtin.systemd:
         name: smartd
       register: __verify_smartd
       changed_when: false
 
-    - name: "verify | Assert smartd is active"
+    - name: "Verify | Assert smartd is active"
       ansible.builtin.assert:
         that:
           - __verify_smartd.status.ActiveState == "active"
 
     # === NTP ===
-    - name: "verify | Check time sync status"
+    - name: "Verify | Check time sync status"
       ansible.builtin.command:
         cmd: timedatectl show --property=NTPSynchronized --value
       register: __verify_ntp
       changed_when: false
 
-    - name: "verify | Assert NTP is synchronized"
+    - name: "Verify | Assert NTP is synchronized"
       ansible.builtin.assert:
         that:
           - __verify_ntp.stdout == "yes"
         fail_msg: "NTP is not synchronized"
-      ignore_errors: true
+      failed_when: false
 
     # === Summary ===
-    - name: "verify | Print verification summary"
+    - name: "Verify | Print verification summary"
       ansible.builtin.debug:
         msg: |
           === NAS Baseline Verification Summary ===

@@ -1,0 +1,50 @@
+---
+name: Molecule
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ansible/roles/**"
+      - ".github/workflows/molecule.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "ansible/roles/**"
+      - ".github/workflows/molecule.yml"
+
+jobs:
+  molecule:
+    name: "Molecule - ${{ matrix.role }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        role:
+          - baseline
+          - docker
+          - nftables
+          - monitoring
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+          ansible-galaxy collection install -r requirements.yml
+
+      - name: Run Molecule
+        run: |
+          cd ansible/roles/${{ matrix.role }}
+          molecule test
+        env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
