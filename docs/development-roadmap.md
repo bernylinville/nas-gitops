@@ -165,16 +165,16 @@ cd /opt/compose/platform/uptime-kuma && docker compose up -d
 
 ---
 
-## 后续优化 (M4+) 📋 规划中
+## 后续优化 (M4+)
 
-| 优先级 | 方向 | 说明 |
-|:------:|------|------|
-| P1 | NAS 本地 Git 镜像 | cron daily `git clone --mirror` 到 /data |
-| P1 | 部署标签自动化 | `deploy-YYYYMMDD-HHMM` tag |
-| P2 | ADR 文档体系 | `docs/adr/` 架构决策记录 |
-| P2 | Grafana + node-exporter | 可视化监控 (替代或补充 Uptime Kuma) |
-| P3 | EasyTier NAS 端部署 | 如需 NAS 直接参与 mesh 而非路由器代理 |
-| P3 | Ansible Vault migration | 如果 sops 不够用 |
+| 优先级 | 方向 | 状态 | 说明 |
+|:------:|------|:----:|------|
+| P1 | 部署标签自动化 | ✅ | `scripts/tag-deploy.sh` |
+| P2 | ADR 文档体系 | ✅ | `docs/adr/` 7 个 ADR 补录 |
+| P1 | NAS 本地 Git 镜像 | ⬚ | systemd timer daily mirror 到 /data |
+| P2 | Grafana + node-exporter | ⬚ | 可视化监控 (补充 Uptime Kuma) |
+| P3 | EasyTier NAS 端部署 | ⏸ | 暂缓，路由器代理方案稳定 |
+| P3 | Ansible Vault migration | ⏸ | 暂缓，sops+age 满足需求 |
 
 ---
 
