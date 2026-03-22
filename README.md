@@ -6,7 +6,7 @@ Debian 13 NAS 的主机配置、服务部署和运维自动化。
 ## 架构
 
 - **配置管理**：Ansible (4 roles: baseline, docker, monitoring, restic)
-- **服务编排**：Docker Compose
+- **服务编排**：Docker Compose (Caddy 2.11.2 + Uptime Kuma 2.2.1)
 - **CI/CD**：GitHub Actions（lint + molecule + deploy-test）+ 手动部署
 - **Secrets**：sops + age
 - **备份**：Restic（本地，systemd timer）
@@ -44,7 +44,7 @@ ansible-playbook -i inventory/prod ansible/playbooks/verify.yml
 - ✅ M0：仓库与安全基础
 - ✅ M1：主机基线（baseline + docker + monitoring roles）
 - ✅ M2：备份与监控（restic role + 告警脚本 + Uptime Kuma + runbooks）
-- ⏳ M3：平台入口与 AI 服务
+- ✅ M3：平台入口（Caddy 反代 + deploy/rollback playbook）
 
 ## 文档
 

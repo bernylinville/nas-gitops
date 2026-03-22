@@ -18,7 +18,7 @@ nas-gitops/
 │   ├── playbooks/          # baseline.yml, docker.yml, backup.yml, verify.yml, bootstrap.yml
 │   └── roles/              # baseline, docker, monitoring, restic
 ├── compose/
-│   └── platform/           # Platform services (uptime-kuma)
+│   └── platform/           # Platform services (caddy, uptime-kuma)
 ├── inventory/
 │   └── prod/               # Production inventory + sops-encrypted vars
 ├── scripts/
@@ -47,6 +47,7 @@ shellcheck scripts/**/*.sh
 shfmt -d scripts/
 
 # Docker Compose
+docker compose -f compose/platform/caddy/docker-compose.yml config
 docker compose -f compose/platform/uptime-kuma/docker-compose.yml config
 
 # Secrets leak check
