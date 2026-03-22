@@ -124,13 +124,20 @@ developer's machine via SSH to the NAS.
 All CI checks must pass before merge:
 
 ```bash
+# CI workflow
 yamllint ansible/ inventory/
 ansible-lint ansible/
 shellcheck scripts/**/*.sh
 shfmt -d scripts/
-docker compose config    # for each compose file
 gitleaks detect --source .
 bash policy/check-compose-policy.sh
+
+# Molecule workflow (per-role syntax check)
+cd ansible/roles/<role> && molecule syntax
+
+# Deploy-test workflow
+ansible-playbook -i <inventory> ansible/playbooks/<playbook>.yml --syntax-check
+ansible-playbook -i <inventory> ansible/playbooks/<playbook>.yml --check --diff
 ```
 
 ## Key Architecture Decisions

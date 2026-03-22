@@ -15,25 +15,22 @@ PR review and CI before deployment.
 ```
 nas-gitops/
 ├── ansible/
-│   ├── playbooks/          # Ansible playbooks (bootstrap, baseline, deploy, etc.)
-│   └── roles/              # Custom Ansible roles
+│   ├── playbooks/          # baseline.yml, docker.yml, backup.yml, verify.yml, bootstrap.yml
+│   └── roles/              # baseline, docker, monitoring, restic
 ├── compose/
-│   ├── platform/           # Platform services (caddy, uptime-kuma)
-│   └── apps/               # Business services (ai-runtime)
+│   └── platform/           # Platform services (uptime-kuma)
 ├── inventory/
 │   └── prod/               # Production inventory + sops-encrypted vars
 ├── scripts/
 │   ├── bootstrap.sh        # Bare-metal → Ansible-ready bootstrap
-│   └── alerts/             # Alert scripts (SMART, RAID, disk, backup)
+│   └── alerts/             # notify.sh + check-{smart,raid,disk,backup}.sh
 ├── policy/
 │   └── check-compose-policy.sh  # Docker Compose policy checks
 ├── docs/
-│   ├── runbooks/           # Operational runbooks
-│   ├── architecture/       # Architecture docs
-│   ├── standards/          # Standards and conventions
-│   └── adr/                # Architecture Decision Records
-├── tests/                  # Test scripts
-└── .github/workflows/      # GitHub Actions CI
+│   ├── runbooks/           # disaster-recovery, disk-replacement, restore-from-backup
+│   └── development-roadmap.md  # SSOT: project status + NAS state
+├── .claude/skills/         # AI agent skills (ansible-cop-review, scaffold-role, zen, context7)
+└── .github/workflows/      # CI: ci.yml, molecule.yml, deploy-test.yml
 ```
 
 ## Key Commands
@@ -50,8 +47,7 @@ shellcheck scripts/**/*.sh
 shfmt -d scripts/
 
 # Docker Compose
-docker compose -f compose/platform/caddy/docker-compose.yml config
-docker compose -f compose/apps/ai-runtime/docker-compose.yml config
+docker compose -f compose/platform/uptime-kuma/docker-compose.yml config
 
 # Secrets leak check
 gitleaks detect --source .
@@ -63,14 +59,13 @@ bash policy/check-compose-policy.sh
 ### Deployment (from dev machine via SSH/EasyTier to NAS)
 
 ```bash
-# Deploy
-ansible-playbook -i inventory/prod ansible/playbooks/deploy.yml
+# Deploy (按顺序)
+ansible-playbook -i inventory/prod ansible/playbooks/baseline.yml
+ansible-playbook -i inventory/prod ansible/playbooks/docker.yml
+ansible-playbook -i inventory/prod ansible/playbooks/backup.yml
 
 # Verify
 ansible-playbook -i inventory/prod ansible/playbooks/verify.yml
-
-# Rollback
-ansible-playbook -i inventory/prod ansible/playbooks/rollback.yml
 
 # Drift check
 ansible-playbook -i inventory/prod ansible/playbooks/baseline.yml --check --diff
@@ -145,13 +140,14 @@ comply:
 
 ## Skills
 
-This project includes adapted Ansible skills in `.claude/skills/`:
+This project includes AI agent skills in `.claude/skills/`:
 
 - **ansible-cop-review** — Review Ansible code against CoP rules +
   NAS-specific constraints
 - **ansible-scaffold-role** — Create new roles with NAS patterns
-  (Docker, systemd, nftables, Restic)
+  (Docker, systemd, Restic) + Molecule scaffold
 - **ansible-zen** — Zen of Ansible philosophical review
+- **context7-cli** — Fetch up-to-date Ansible/Docker/systemd documentation
 
 ## Architecture Decisions
 
