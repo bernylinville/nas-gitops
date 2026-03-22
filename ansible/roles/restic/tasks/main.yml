@@ -1,0 +1,13 @@
+---
+# restic/tasks/main.yml — Restic backup role entry point
+- name: "Restic | Include install tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/install.yml"
+
+- name: "Restic | Include init tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/init.yml"
+
+- name: "Restic | Include timer tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/timer.yml"

@@ -1,0 +1,18 @@
+---
+# Uptime Kuma — Self-hosted monitoring
+# https://github.com/louislam/uptime-kuma
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "${NAS_LAN_IP:-192.168.50.10}:3001:3001"
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const http=require('http');const o={hostname:'127.0.0.1',port:3001,path:'/api/status-page/heartbeat/alive',timeout:2000};http.get(o,r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

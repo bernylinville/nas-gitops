@@ -1,0 +1,25 @@
+---
+# restic/tasks/timer.yml — Deploy systemd service and timer for restic backup
+- name: "Timer | Deploy restic-backup systemd service"
+  ansible.builtin.template:
+    src: restic-backup.service.j2
+    dest: /etc/systemd/system/restic-backup.service
+    mode: "0644"
+  notify: Reload systemd
+
+- name: "Timer | Deploy restic-backup systemd timer"
+  ansible.builtin.template:
+    src: restic-backup.timer.j2
+    dest: /etc/systemd/system/restic-backup.timer
+    mode: "0644"
+  notify: Reload systemd
+
+- name: "Timer | Flush handlers to reload systemd"
+  ansible.builtin.meta: flush_handlers
+
+- name: "Timer | Enable and start restic-backup timer"
+  ansible.builtin.systemd:
+    name: restic-backup.timer
+    enabled: true
+    state: started
+    daemon_reload: true

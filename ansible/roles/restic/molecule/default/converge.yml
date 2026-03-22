@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    restic_repo_password: "test-password-for-ci"
+    restic_repo_path: "/tmp/restic-test-repo"
+    restic_backup_paths:
+      - /etc
+    restic_timer_oncalendar: "*-*-* 03:00:00"
+  roles:
+    - role: restic

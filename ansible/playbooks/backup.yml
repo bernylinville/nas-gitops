@@ -1,0 +1,51 @@
+---
+# backup.yml — Deploy restic backup and alert scripts
+# Usage: ansible-playbook -i inventory/prod ansible/playbooks/backup.yml
+- name: Deploy backup and monitoring
+  hosts: nas
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: restic
+
+  tasks:
+    - name: "Alerts | Create notification config directory"
+      ansible.builtin.file:
+        path: /etc/nas-gitops
+        state: directory
+        mode: "0700"
+        owner: root
+        group: root
+
+    - name: "Alerts | Deploy notification environment file"
+      ansible.builtin.copy:
+        dest: /etc/nas-gitops/notify.env
+        content: |
+          TELEGRAM_BOT_TOKEN={{ telegram_bot_token }}
+          TELEGRAM_CHAT_ID={{ telegram_chat_id }}
+        mode: "0400"
+        owner: root
+        group: root
+
+    - name: "Alerts | Create scripts target directory"
+      ansible.builtin.file:
+        path: /opt/nas-gitops/scripts/alerts
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: "Alerts | Deploy alert scripts"
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "/opt/nas-gitops/scripts/alerts/{{ item | basename }}"
+        mode: "0755"
+        owner: root
+        group: root
+      loop:
+        - "{{ playbook_dir }}/../../scripts/alerts/notify.sh"
+        - "{{ playbook_dir }}/../../scripts/alerts/check-smart.sh"
+        - "{{ playbook_dir }}/../../scripts/alerts/check-raid.sh"
+        - "{{ playbook_dir }}/../../scripts/alerts/check-disk.sh"
+        - "{{ playbook_dir }}/../../scripts/alerts/check-backup.sh"

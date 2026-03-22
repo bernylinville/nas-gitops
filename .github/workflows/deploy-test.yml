@@ -71,6 +71,12 @@ jobs:
             - tree
           monitoring_smart_devices: []
           docker_users: []
+          restic_repo_password: "ci-test-password"
+          restic_repo_path: "/tmp/restic-ci-repo"
+          restic_backup_paths:
+            - /etc
+          telegram_bot_token: "ci-test-token"
+          telegram_chat_id: "ci-test-chat-id"
           EOF
 
       # Strict: syntax check must pass
@@ -95,6 +101,14 @@ jobs:
           ansible-playbook \
             -i /tmp/test-inventory \
             ansible/playbooks/verify.yml \
+            --syntax-check \
+            -e "ansible_roles_path=ansible/roles"
+
+      - name: "Syntax check: backup.yml"
+        run: |
+          ansible-playbook \
+            -i /tmp/test-inventory \
+            ansible/playbooks/backup.yml \
             --syntax-check \
             -e "ansible_roles_path=ansible/roles"
 

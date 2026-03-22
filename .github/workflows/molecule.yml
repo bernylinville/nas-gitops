@@ -24,6 +24,7 @@ jobs:
           - baseline
           - docker
           - monitoring
+          - restic
 
     steps:
       - name: Checkout

@@ -1,0 +1,8 @@
+---
+# restic/tasks/install.yml — Ensure restic is installed
+- name: "Install | Ensure restic is installed"
+  ansible.builtin.apt:
+    name: restic
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

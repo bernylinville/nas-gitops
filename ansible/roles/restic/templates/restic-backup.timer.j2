@@ -1,0 +1,12 @@
+{{ ansible_managed | comment }}
+# restic-backup.timer — Daily restic backup timer
+[Unit]
+Description=Restic Backup Timer
+
+[Timer]
+OnCalendar={{ restic_timer_oncalendar }}
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

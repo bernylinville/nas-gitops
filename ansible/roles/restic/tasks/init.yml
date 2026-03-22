@@ -1,0 +1,42 @@
+---
+# restic/tasks/init.yml — Initialize restic repository (idempotent)
+- name: "Init | Create restic config directory"
+  ansible.builtin.file:
+    path: "{{ restic_config_dir }}"
+    state: directory
+    mode: "0700"
+    owner: root
+    group: root
+
+- name: "Init | Deploy restic environment file"
+  ansible.builtin.template:
+    src: restic-env.j2
+    dest: "{{ restic_env_file }}"
+    mode: "0400"
+    owner: root
+    group: root
+
+- name: "Init | Create restic repo parent directory"
+  ansible.builtin.file:
+    path: "{{ restic_repo_path }}"
+    state: directory
+    mode: "0700"
+    owner: root
+    group: root
+
+- name: "Init | Check if restic repo is already initialized"
+  ansible.builtin.command:
+    cmd: "restic -r {{ restic_repo_path }} snapshots --no-lock"
+  environment:
+    RESTIC_PASSWORD: "{{ restic_repo_password }}"
+  register: __restic_repo_check
+  changed_when: false
+  failed_when: false
+
+- name: "Init | Initialize restic repository"
+  ansible.builtin.command:
+    cmd: "restic -r {{ restic_repo_path }} init"
+  environment:
+    RESTIC_PASSWORD: "{{ restic_repo_password }}"
+  when: __restic_repo_check.rc != 0
+  changed_when: true

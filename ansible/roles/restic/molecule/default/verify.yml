@@ -1,0 +1,46 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: "Verify | Check restic is installed"
+      ansible.builtin.command:
+        cmd: restic version
+      register: __restic_verify_version
+      changed_when: false
+
+    - name: "Verify | Assert restic is installed"
+      ansible.builtin.assert:
+        that:
+          - __restic_verify_version.rc == 0
+
+    - name: "Verify | Check restic env file exists"
+      ansible.builtin.stat:
+        path: /etc/restic/env
+      register: __restic_verify_env
+
+    - name: "Verify | Assert env file exists with correct permissions"
+      ansible.builtin.assert:
+        that:
+          - __restic_verify_env.stat.exists
+          - __restic_verify_env.stat.mode == "0400"
+
+    - name: "Verify | Check systemd service file exists"
+      ansible.builtin.stat:
+        path: /etc/systemd/system/restic-backup.service
+      register: __restic_verify_service
+
+    - name: "Verify | Assert service file exists"
+      ansible.builtin.assert:
+        that:
+          - __restic_verify_service.stat.exists
+
+    - name: "Verify | Check systemd timer file exists"
+      ansible.builtin.stat:
+        path: /etc/systemd/system/restic-backup.timer
+      register: __restic_verify_timer
+
+    - name: "Verify | Assert timer file exists"
+      ansible.builtin.assert:
+        that:
+          - __restic_verify_timer.stat.exists

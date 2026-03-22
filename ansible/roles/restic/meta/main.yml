@@ -1,0 +1,13 @@
+---
+# restic/meta/main.yml
+galaxy_info:
+  role_name: restic
+  namespace: nas_gitops
+  author: kchou
+  description: Restic backup with systemd timer
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Debian
+      versions:
+        - trixie

@@ -1,6 +1,6 @@
 # NAS GitOps 开发规划
 
-> 基于 [nas-gitops-plan-v3.1](nas-gitops-plan-v3.1-2026-03-21.md) | 更新时间：2026-03-22
+> 基于 [nas-gitops-plan-v3.1](nas-gitops-plan-v3.1-2026-03-21.md) | 更新时间：2026-03-22 (M2)
 
 ## 目标系统（已确认）
 
@@ -100,35 +100,42 @@ ansible-playbook -i inventory/prod ansible/playbooks/verify.yml
 
 ---
 
-## M2：备份与监控 ⏳ 待开发
+## M2：备份与监控 ✅ 已完成
 
 | 状态 | 交付物 | 说明 |
 |:----:|--------|------|
-| ⬚ | `ansible/roles/restic/` | Restic 备份 role |
-| | | 安装 restic, 初始化 repo |
-| | | systemd timer 定时备份 (/data, /opt/compose, /etc) |
-| | | 备份前预检 (RAID status, mount status) |
-| | | 备份后验证 (restic check) |
-| | | 保留策略 (keep-daily:7, keep-weekly:4, keep-monthly:6) |
-| ⬚ | `scripts/alerts/notify.sh` | 统一通知框架 (Telegram / webhook) |
-| ⬚ | `scripts/alerts/check-smart.sh` | SMART 健康告警脚本 |
-| ⬚ | `scripts/alerts/check-raid.sh` | RAID 状态告警脚本 |
-| ⬚ | `scripts/alerts/check-disk.sh` | 磁盘空间告警脚本 |
-| ⬚ | `scripts/alerts/check-backup.sh` | 备份状态告警脚本 |
-| ⬚ | `compose/platform/uptime-kuma/` | Uptime Kuma docker-compose |
+| ✅ | `ansible/roles/restic/` | Restic 备份 role |
+| | | systemd timer 定时备份 (每日 02:00) |
+| | | 幂等 repo 初始化 + env 文件 (mode 0400) |
+| | | 保留策略 (daily:7, weekly:4, monthly:6) |
+| | | Nice=19 + IOSchedulingClass=idle 低影响 |
+| ✅ | `scripts/alerts/notify.sh` | 统一通知框架 (Telegram) |
+| ✅ | `scripts/alerts/check-smart.sh` | SMART 健康告警 |
+| ✅ | `scripts/alerts/check-raid.sh` | RAID 状态告警 |
+| ✅ | `scripts/alerts/check-disk.sh` | 磁盘空间告警 (阈值可配) |
+| ✅ | `scripts/alerts/check-backup.sh` | 备份新鲜度告警 (25h) |
+| ✅ | `compose/platform/uptime-kuma/` | Uptime Kuma 2.x docker-compose |
 | | | 绑定 LAN IP, healthcheck, restart policy |
-| | | ping 检查 + HTTP 检查 |
-| ⬚ | `ansible/playbooks/backup.yml` | 备份部署 playbook |
-| ⬚ | `docs/runbooks/disaster-recovery.md` | 灾难恢复 Runbook |
-| ⬚ | `docs/runbooks/disk-replacement.md` | RAID 换盘 Runbook |
-| ⬚ | `docs/runbooks/restore-from-backup.md` | 备份恢复 Runbook |
+| ✅ | `ansible/playbooks/backup.yml` | 备份部署 playbook |
+| ✅ | `docs/runbooks/disaster-recovery.md` | 灾难恢复 Runbook |
+| ✅ | `docs/runbooks/disk-replacement.md` | RAID 换盘 Runbook |
+| ✅ | `docs/runbooks/restore-from-backup.md` | 备份恢复 Runbook |
+
+### M2 部署顺序
+
+```bash
+# M1 先部署完成后:
+ansible-playbook -i inventory/prod ansible/playbooks/backup.yml --check --diff
+ansible-playbook -i inventory/prod ansible/playbooks/backup.yml
+# Uptime Kuma:
+cd /opt/compose/platform/uptime-kuma && docker compose up -d
+```
 
 ### M2 依赖
 
 - M1 baseline + Docker 需先部署完成
-- Restic 需要 `restic_repo_password` (已在 `all.sops.yml` 中)
-- Telegram 通知需要 bot token + chat ID (已在 `all.sops.yml` 中)
-- 异地备份需要 B2/S3 bucket (可后续配置)
+- `restic_repo_password` 在 `all.sops.yml` 中
+- `telegram_bot_token` + `telegram_chat_id` 在 `all.sops.yml` 中
 
 ---
 
