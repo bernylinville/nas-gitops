@@ -13,8 +13,8 @@
 | 数据盘 | 2×7.3TB HDD (sdb+sdc), mdadm RAID1 → /dev/md0 → /data |
 | 网络 | LAN 192.168.50.10/24 (eno1), 家庭内网无防火墙需求 |
 | 远程接入 | EasyTier 由路由器 (iStoreOS 192.168.50.1) 代理, NAS 不运行 EasyTier |
-| 已安装 | openssh-server 10.0p1, nftables 1.1.3, mdadm 4.4, smartmontools 7.4 |
-| 未安装 | Docker (M1 部署后安装), unattended-upgrades (M1 部署后安装) |
+| 已安装 | openssh-server 10.0p1, nftables 1.1.3, mdadm 4.4, smartmontools 7.4, Docker 29.3.0, unattended-upgrades, restic |
+| 容器服务 | Caddy 2.11.2 (反向代理), Uptime Kuma 2.2.1 (监控) |
 
 ## CI 结构（全部通过 ✅）
 
@@ -193,7 +193,6 @@ graph TD
         B --> F[Docker]
         F --> G[Caddy]
         F --> H[Uptime Kuma]
-        F --> I[AI Runtime]
         B --> K[Restic Backup]
         B --> L[SMART/mdadm]
     end
