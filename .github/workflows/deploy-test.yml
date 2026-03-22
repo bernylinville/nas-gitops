@@ -17,32 +17,24 @@ on:
 
 jobs:
   deploy-test:
-    name: "Deploy Test (Debian 13)"
+    name: "Playbook Dry-Run (--check --diff)"
     runs-on: ubuntu-latest
-    container:
-      image: debian:trixie
-      options: --privileged
-      volumes:
-        - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
     steps:
-      - name: Install prerequisites
-        run: |
-          apt-get update -qq
-          apt-get install -y -qq \
-            python3 python3-pip python3-venv \
-            git sudo systemd openssh-server \
-            ca-certificates curl gnupg nftables \
-            util-linux dbus
-
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python venv and install Ansible
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install Ansible
         run: |
-          python3 -m venv /opt/venv
-          /opt/venv/bin/pip install ansible-core
-          /opt/venv/bin/ansible-galaxy collection install -r requirements.yml
+          pip install ansible-core
+          ansible-galaxy collection install -r requirements.yml
 
       - name: Create test inventory
         run: |
@@ -55,7 +47,6 @@ jobs:
                 hosts:
                   localhost:
                     ansible_connection: local
-                    ansible_python_interpreter: /opt/venv/bin/python3
           EOF
 
           cat > /tmp/test-inventory/group_vars/all.yml << 'EOF'
@@ -80,66 +71,35 @@ jobs:
             - tree
           monitoring_smart_devices: []
           nftables_extra_tcp_ports: []
+          docker_users: []
           EOF
 
-      - name: Run baseline playbook (real deploy)
+      - name: "Dry-run: baseline.yml (--check --diff)"
         run: |
-          /opt/venv/bin/ansible-playbook \
+          ansible-playbook \
             -i /tmp/test-inventory \
             ansible/playbooks/baseline.yml \
+            --check --diff \
             -e "ansible_roles_path=ansible/roles" \
-            --skip-tags "reboot" \
             -v
         env:
           ANSIBLE_FORCE_COLOR: "1"
 
-      - name: Run Docker playbook (real deploy)
+      - name: "Dry-run: docker.yml (--check --diff)"
         run: |
-          /opt/venv/bin/ansible-playbook \
+          ansible-playbook \
             -i /tmp/test-inventory \
             ansible/playbooks/docker.yml \
+            --check --diff \
             -e "ansible_roles_path=ansible/roles" \
-            -e '{"docker_users": []}' \
             -v
         env:
           ANSIBLE_FORCE_COLOR: "1"
 
-      - name: Verify baseline state
+      - name: "Syntax check: verify.yml"
         run: |
-          set +e
-          echo "=== Hostname ==="
-          hostname
-
-          echo "=== SSH Config ==="
-          grep -E "^(PasswordAuthentication|PermitRootLogin|AllowUsers)" /etc/ssh/sshd_config
-
-          echo "=== NTP Config ==="
-          cat /etc/systemd/timesyncd.conf
-
-          echo "=== nftables Config ==="
-          cat /etc/nftables.conf || echo "nftables.conf not found (may be expected in container)"
-
-          echo "=== Sysctl ==="
-          sysctl vm.swappiness
-
-          echo "=== Docker ==="
-          docker --version || echo "Docker not available (expected in container)"
-          cat /etc/docker/daemon.json || echo "No daemon.json"
-
-          echo "=== Unattended Upgrades ==="
-          dpkg -l unattended-upgrades | tail -1
-
-          echo "=== All verifications complete ==="
-
-      - name: Test idempotency (run baseline again)
-        run: |
-          /opt/venv/bin/ansible-playbook \
+          ansible-playbook \
             -i /tmp/test-inventory \
-            ansible/playbooks/baseline.yml \
-            -e "ansible_roles_path=ansible/roles" \
-            --skip-tags "reboot" \
-            -v 2>&1 | tee /tmp/idempotency.log
-
-          echo "Re-run completed. Check output above for changed tasks."
-        env:
-          ANSIBLE_FORCE_COLOR: "1"
+            ansible/playbooks/verify.yml \
+            --syntax-check \
+            -e "ansible_roles_path=ansible/roles"

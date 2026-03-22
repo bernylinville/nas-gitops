@@ -1,23 +1,8 @@
 ---
 # baseline/tasks/time.yml — Timezone and NTP configuration
-- name: "Time | Check if running in container"
-  ansible.builtin.stat:
-    path: /.dockerenv
-  register: __baseline_dockerenv_time
-
 - name: "Time | Set timezone"
   community.general.timezone:
     name: "{{ baseline_timezone }}"
-    hwclock: UTC
-  when: not __baseline_dockerenv_time.stat.exists
-
-- name: "Time | Set timezone in container (symlink fallback)"
-  ansible.builtin.file:
-    src: "/usr/share/zoneinfo/{{ baseline_timezone }}"
-    dest: /etc/localtime
-    state: link
-    force: true
-  when: __baseline_dockerenv_time.stat.exists
 
 - name: "Time | Configure systemd-timesyncd"
   ansible.builtin.template:
@@ -32,4 +17,3 @@
     name: systemd-timesyncd
     enabled: true
     state: started
-  when: not __baseline_dockerenv_time.stat.exists

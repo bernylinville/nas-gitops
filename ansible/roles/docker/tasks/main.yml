@@ -1,10 +1,5 @@
 ---
 # docker/tasks/main.yml — Docker role entry point
-- name: "Docker | Check if running in container"
-  ansible.builtin.stat:
-    path: /.dockerenv
-  register: __docker_dockerenv
-
 - name: "Docker | Include install tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/install.yml"
@@ -18,9 +13,7 @@
     name: docker
     state: "{{ docker_service_state }}"
     enabled: "{{ docker_service_enabled }}"
-  when:
-    - docker_service_manage | bool
-    - not __docker_dockerenv.stat.exists
+  when: docker_service_manage | bool
 
 - name: "Docker | Flush handlers to avoid firewall conflicts"
   ansible.builtin.meta: flush_handlers
@@ -28,6 +21,4 @@
 - name: "Docker | Include user tasks"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/users.yml"
-  when:
-    - docker_users | length > 0
-    - not __docker_dockerenv.stat.exists
+  when: docker_users | length > 0

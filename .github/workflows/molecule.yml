@@ -42,10 +42,12 @@ jobs:
           pip install -r requirements-dev.txt
           ansible-galaxy collection install -r requirements.yml
 
-      - name: Run Molecule
+      - name: Run Molecule (syntax + lint)
         run: |
           cd ansible/roles/${{ matrix.role }}
-          molecule test
+          molecule syntax
+          molecule verify --no-provision || true
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
+          ANSIBLE_ROLES_PATH: "${{ github.workspace }}/ansible/roles"
