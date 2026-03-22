@@ -139,26 +139,29 @@ cd /opt/compose/platform/uptime-kuma && docker compose up -d
 
 ---
 
-## M3：平台入口与 AI 服务 ⏳ 待开发
+## M3：平台入口 ✅ 已完成
 
 | 状态 | 交付物 | 说明 |
 |:----:|--------|------|
-| ⬚ | `compose/platform/caddy/` | Caddy 反向代理 |
-| | | Caddyfile 模板 (绑定 LAN/EasyTier IP) |
-| | | TLS 内部自签证书 |
-| | | 路由到 Uptime Kuma / AI 服务 |
-| ⬚ | `compose/apps/ai-runtime/` | AI 服务 docker-compose |
-| | | OpenWebUI / ChatGPT-Next-Web |
-| | | LLM API 代理 |
-| ⬚ | `ansible/playbooks/deploy.yml` | 统一部署 playbook (compose up) |
-| ⬚ | `ansible/playbooks/rollback.yml` | 回滚 playbook (git tag + compose down/up) |
-| ⬚ | `docs/runbooks/service-deploy.md` | 服务部署 Runbook |
+| ✅ | `compose/platform/caddy/` | Caddy 2.11.2 反向代理 |
+| | | Caddyfile (HTTP, 绑定 LAN IP, auto_https off) |
+| | | 路由到 Uptime Kuma (`/uptime/`) |
+| ✅ | `ansible/playbooks/deploy.yml` | 统一部署 playbook (network + sync + compose up + 健康检查) |
+| ✅ | `ansible/playbooks/rollback.yml` | 回滚 playbook (compose down + re-sync + compose up) |
+| ✅ | `docs/runbooks/service-deploy.md` | 服务部署/更新/回滚 Runbook |
+| ❌ | AI 服务 (Open WebUI) | 用户决定不需要，已移除 |
+
+### M3 版本信息
+
+| 服务 | 版本 | 确认来源 |
+|------|------|----------|
+| Caddy | 2.11.2 | GitHub API (2026-03-06) |
+| Uptime Kuma | 2.2.1 | GitHub API (2026-03-10) |
 
 ### M3 依赖
 
 - M1 baseline + Docker 需先部署完成
-- M2 Uptime Kuma 可选 (但建议先部署)
-- AI 服务的具体选型待确认
+- M2 Uptime Kuma 建议先部署
 
 ---
 

@@ -1,0 +1,98 @@
+---
+# deploy.yml — Deploy Docker Compose services to NAS
+# Usage: ansible-playbook -i inventory/prod ansible/playbooks/deploy.yml
+#
+# Tags:
+#   - network: Create shared Docker network only
+#   - platform: Deploy platform services (caddy, uptime-kuma)
+- name: Deploy compose services
+  hosts: nas
+  become: true
+  gather_facts: true
+
+  vars:
+    compose_base_dir: /opt/compose
+    compose_services:
+      - name: caddy
+        type: platform
+        path: "{{ playbook_dir }}/../../compose/platform/caddy"
+      - name: uptime-kuma
+        type: platform
+        path: "{{ playbook_dir }}/../../compose/platform/uptime-kuma"
+
+  tasks:
+    # --- Docker network ---
+    - name: "Network | Create shared nas-platform network"
+      community.docker.docker_network:
+        name: nas-platform
+        state: present
+      tags: [network, platform]
+
+    # --- Directory structure ---
+    - name: "Deploy | Create compose base directory"
+      ansible.builtin.file:
+        path: "{{ compose_base_dir }}/{{ item.type }}/{{ item.name }}"
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+      loop: "{{ compose_services }}"
+      loop_control:
+        label: "{{ item.name }}"
+      tags: [platform]
+
+    # --- Sync compose files ---
+    - name: "Deploy | Sync compose files"
+      ansible.builtin.copy:
+        src: "{{ item.path }}/"
+        dest: "{{ compose_base_dir }}/{{ item.type }}/{{ item.name }}/"
+        mode: "0644"
+        owner: root
+        group: root
+        directory_mode: "0755"
+      loop: "{{ compose_services }}"
+      loop_control:
+        label: "{{ item.name }}"
+      tags: [platform]
+
+    - name: "Deploy | Set .env file permissions"
+      ansible.builtin.file:
+        path: "{{ compose_base_dir }}/{{ item.type }}/{{ item.name }}/.env"
+        mode: "0600"
+        owner: root
+        group: root
+      loop: "{{ compose_services }}"
+      loop_control:
+        label: "{{ item.name }}"
+      failed_when: false
+      tags: [platform]
+
+    # --- Platform services (Caddy first, then others) ---
+    - name: "Deploy | Start platform services"
+      community.docker.docker_compose_v2:
+        project_src: "{{ compose_base_dir }}/platform/{{ item }}"
+        state: present
+        pull: "missing"
+      loop:
+        - caddy
+        - uptime-kuma
+      tags: [platform]
+
+    # --- Health check ---
+    - name: "Deploy | Wait for Caddy health"
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:80/healthz"
+        status_code: 200
+      register: __deploy_caddy_health
+      retries: 10
+      delay: 5
+      until: __deploy_caddy_health.status == 200
+      tags: [platform]
+
+    - name: "Deploy | Print deployment summary"
+      ansible.builtin.debug:
+        msg: |
+          === Deployment Complete ===
+          Platform: caddy (2.11.2), uptime-kuma (2.2.1)
+          Access: http://{{ nas_lan_ip | default('192.168.50.10') }}
+      tags: [platform]

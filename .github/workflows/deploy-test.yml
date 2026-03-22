@@ -112,6 +112,22 @@ jobs:
             --syntax-check \
             -e "ansible_roles_path=ansible/roles"
 
+      - name: "Syntax check: deploy.yml"
+        run: |
+          ansible-playbook \
+            -i /tmp/test-inventory \
+            ansible/playbooks/deploy.yml \
+            --syntax-check \
+            -e "ansible_roles_path=ansible/roles"
+
+      - name: "Syntax check: rollback.yml"
+        run: |
+          ansible-playbook \
+            -i /tmp/test-inventory \
+            ansible/playbooks/rollback.yml \
+            --syntax-check \
+            -e "ansible_roles_path=ansible/roles"
+
       # Informational: dry-run may fail on Ubuntu (not Debian 13)
       - name: "Dry-run: baseline.yml (--check --diff)"
         continue-on-error: true

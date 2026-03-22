@@ -1,0 +1,65 @@
+---
+# rollback.yml — Rollback a compose service to previous version
+# Usage: ansible-playbook -i inventory/prod ansible/playbooks/rollback.yml \
+#          -e "rollback_service=open-webui" -e "rollback_type=apps"
+- name: Rollback compose service
+  hosts: nas
+  become: true
+  gather_facts: true
+
+  vars:
+    compose_base_dir: /opt/compose
+    # Required: set via -e
+    # rollback_service: "service-name"
+    # rollback_type: "platform" or "apps"
+
+  tasks:
+    - name: "Validate | Check required variables"
+      ansible.builtin.assert:
+        that:
+          - rollback_service is defined
+          - rollback_type is defined
+          - rollback_type in ['platform', 'apps']
+        fail_msg: >
+          Usage: -e "rollback_service=<name>" -e "rollback_type=<platform|apps>"
+
+    - name: "Rollback | Set service path"
+      ansible.builtin.set_fact:
+        __rollback_service_path: "{{ compose_base_dir }}/{{ rollback_type }}/{{ rollback_service }}"
+
+    - name: "Rollback | Stop service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ __rollback_service_path }}"
+        state: absent
+      failed_when: false
+
+    - name: "Rollback | Re-sync compose files from repo"
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../compose/{{ rollback_type }}/{{ rollback_service }}/"
+        dest: "{{ __rollback_service_path }}/"
+        mode: "0644"
+        owner: root
+        group: root
+        directory_mode: "0755"
+
+    - name: "Rollback | Set .env file permissions"
+      ansible.builtin.file:
+        path: "{{ __rollback_service_path }}/.env"
+        mode: "0600"
+        owner: root
+        group: root
+      failed_when: false
+
+    - name: "Rollback | Restart service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ __rollback_service_path }}"
+        state: present
+        pull: "missing"
+
+    - name: "Rollback | Print result"
+      ansible.builtin.debug:
+        msg: |
+          === Rollback Complete ===
+          Service: {{ rollback_service }}
+          Path: {{ __rollback_service_path }}
+          Status: Redeployed from current repo state

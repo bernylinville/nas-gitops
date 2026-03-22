@@ -1,0 +1,21 @@
+# Caddyfile — NAS reverse proxy (home LAN, no TLS)
+{
+	auto_https off
+}
+
+# Health check endpoint
+:80 {
+	handle /healthz {
+		respond "OK" 200
+	}
+
+	# Uptime Kuma
+	handle_path /uptime/* {
+		reverse_proxy uptime-kuma:3001
+	}
+
+	# Default landing
+	handle {
+		respond "NAS Gateway - {time.now.common_log}" 200
+	}
+}

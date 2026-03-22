@@ -1,0 +1,31 @@
+---
+# Caddy — Reverse proxy for NAS services
+# Access: http://192.168.50.10
+services:
+  caddy:
+    image: caddy:2.11.2
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "${NAS_LAN_IP:-192.168.50.10}:80:80"
+      - "${NAS_LAN_IP:-192.168.50.10}:443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - nas-platform
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  nas-platform:
+    external: true
