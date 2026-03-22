@@ -1,6 +1,8 @@
 ---
 # nftables/meta/main.yml
 galaxy_info:
+  role_name: nftables
+  namespace: bernylinville
   author: "Berny Linville"
   description: "NAS nftables firewall: INPUT DROP default, LAN-only access"
   license: "MIT"

@@ -1,6 +1,8 @@
 ---
 # docker/meta/main.yml
 galaxy_info:
+  role_name: docker
+  namespace: bernylinville
   author: "Berny Linville"
   description: "Docker CE installation for Debian NAS (based on geerlingguy.docker patterns)"
   license: "MIT"

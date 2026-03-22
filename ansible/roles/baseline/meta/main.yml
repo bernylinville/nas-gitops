@@ -1,8 +1,10 @@
 ---
-# baseline/meta/main.yml — Role metadata
+# baseline/meta/main.yml
 galaxy_info:
+  role_name: baseline
+  namespace: bernylinville
   author: "Berny Linville"
-  description: "NAS baseline configuration: packages, SSH hardening, NTP, sysctl, unattended-upgrades"
+  description: "NAS baseline: packages, SSH hardening, NTP, sysctl, unattended-upgrades"
   license: "MIT"
   min_ansible_version: "2.15"
   platforms:

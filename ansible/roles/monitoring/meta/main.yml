@@ -1,6 +1,8 @@
 ---
 # monitoring/meta/main.yml
 galaxy_info:
+  role_name: monitoring
+  namespace: bernylinville
   author: "Berny Linville"
   description: "NAS monitoring: smartmontools SMART checks, mdadm RAID monitoring"
   license: "MIT"
