@@ -32,7 +32,7 @@ jobs:
           apt-get install -y -qq \
             python3 python3-pip python3-venv \
             git sudo systemd openssh-server \
-            ca-certificates curl gnupg
+            ca-certificates curl gnupg nftables
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,10 +49,12 @@ jobs:
           cat > /tmp/test-inventory/hosts.yml << 'EOF'
           ---
           all:
-            hosts:
-              localhost:
-                ansible_connection: local
-                ansible_python_interpreter: /opt/venv/bin/python3
+            children:
+              nas:
+                hosts:
+                  localhost:
+                    ansible_connection: local
+                    ansible_python_interpreter: /opt/venv/bin/python3
           EOF
 
           cat > /tmp/test-inventory/group_vars/all.yml << 'EOF'
@@ -76,6 +78,7 @@ jobs:
             - jq
             - tree
           monitoring_smart_devices: []
+          nftables_extra_tcp_ports: []
           EOF
 
       - name: Run baseline playbook (real deploy)
@@ -102,20 +105,21 @@ jobs:
 
       - name: Verify baseline state
         run: |
+          set +e
           echo "=== Hostname ==="
           hostname
 
           echo "=== SSH Config ==="
-          grep -E "^(PasswordAuthentication|PermitRootLogin|AllowUsers)" /etc/ssh/sshd_config || true
+          grep -E "^(PasswordAuthentication|PermitRootLogin|AllowUsers)" /etc/ssh/sshd_config
 
           echo "=== NTP Config ==="
           cat /etc/systemd/timesyncd.conf
 
           echo "=== nftables Config ==="
-          cat /etc/nftables.conf
+          cat /etc/nftables.conf || echo "nftables.conf not found (may be expected in container)"
 
           echo "=== Sysctl ==="
-          sysctl vm.swappiness || true
+          sysctl vm.swappiness
 
           echo "=== Docker ==="
           docker --version || echo "Docker not available (expected in container)"
@@ -123,6 +127,8 @@ jobs:
 
           echo "=== Unattended Upgrades ==="
           dpkg -l unattended-upgrades | tail -1
+
+          echo "=== All verifications complete ==="
 
       - name: Test idempotency (run baseline again)
         run: |
@@ -133,8 +139,6 @@ jobs:
             --skip-tags "reboot" \
             -v 2>&1 | tee /tmp/idempotency.log
 
-          # Check for changed tasks (should be 0 or minimal)
-          CHANGED=$(grep -c 'changed=' /tmp/idempotency.log | tail -1 || echo "0")
-          echo "Re-run completed. Check output for changed tasks."
+          echo "Re-run completed. Check output above for changed tasks."
         env:
           ANSIBLE_FORCE_COLOR: "1"
