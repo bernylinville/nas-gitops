@@ -95,4 +95,6 @@
           === Deployment Complete ===
           Platform: caddy (2.11.2), uptime-kuma (2.2.1)
           Access: http://{{ nas_lan_ip | default('192.168.50.10') }}
+
+          Next: Run 'scripts/tag-deploy.sh --push' to tag this deployment
       tags: [platform]
