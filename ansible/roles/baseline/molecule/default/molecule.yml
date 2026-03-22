@@ -8,8 +8,8 @@ driver:
   name: docker
 platforms:
   - name: "nas-baseline-test"
-    image: "debian:trixie"
-    command: "/sbin/init"
+    image: "geerlingguy/docker-debian13-ansible:latest"
+    command: ""
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
