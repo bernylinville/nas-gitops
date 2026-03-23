@@ -19,3 +19,11 @@ scrape_configs:
       - targets: ["cadvisor:8080"]
         labels:
           instance: "nas"
+
+  - job_name: "smartctl"
+    scrape_interval: 60s
+    scrape_timeout: 30s
+    static_configs:
+      - targets: ["smartctl-exporter:9633"]
+        labels:
+          instance: "nas"

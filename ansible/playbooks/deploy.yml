@@ -64,6 +64,8 @@
         content: |
           NAS_LAN_IP={{ nas_lan_ip | default('192.168.50.10') }}
           GRAFANA_ADMIN_PASSWORD={{ grafana_admin_password }}
+          TELEGRAM_BOT_TOKEN={{ notify_telegram_bot_token }}
+          TELEGRAM_CHAT_ID={{ notify_telegram_chat_id }}
         mode: "0600"
         owner: root
         group: root

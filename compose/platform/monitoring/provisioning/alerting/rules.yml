@@ -1,0 +1,191 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: NAS Alerts
+    folder: NAS
+    interval: 1m
+    rules:
+      - uid: nas-cpu-high
+        title: "CPU 使用率过高"
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: "__default__"
+            model:
+              expr: "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"nas\"}[5m])) * 100)"
+              instant: true
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [85]
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NAS CPU 使用率 > 85% 持续 5 分钟"
+
+      - uid: nas-memory-high
+        title: "内存使用率过高"
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: "__default__"
+            model:
+              expr: "(1 - node_memory_MemAvailable_bytes{instance=\"nas\"} / node_memory_MemTotal_bytes{instance=\"nas\"}) * 100"
+              instant: true
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [90]
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NAS 内存使用率 > 90% 持续 5 分钟"
+
+      - uid: nas-disk-root-high
+        title: "系统盘空间不足"
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: "__default__"
+            model:
+              expr: "(1 - node_filesystem_avail_bytes{mountpoint=\"/\",instance=\"nas\"} / node_filesystem_size_bytes{mountpoint=\"/\",instance=\"nas\"}) * 100"
+              instant: true
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [85]
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "NAS 系统盘 (/) 使用率 > 85%"
+
+      - uid: nas-disk-data-high
+        title: "数据盘空间不足"
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: "__default__"
+            model:
+              expr: "(1 - node_filesystem_avail_bytes{mountpoint=\"/data\",instance=\"nas\"} / node_filesystem_size_bytes{mountpoint=\"/data\",instance=\"nas\"}) * 100"
+              instant: true
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [85]
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "NAS 数据盘 (/data) 使用率 > 85%"
+
+      - uid: nas-cpu-temp-high
+        title: "CPU 温度过高"
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: "__default__"
+            model:
+              expr: "max(node_hwmon_temp_celsius{chip=\"platform_coretemp_0\",instance=\"nas\"})"
+              instant: true
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [75]
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "NAS CPU 温度 > 75°C 持续 3 分钟"
+
+      - uid: nas-disk-temp-high
+        title: "硬盘温度过高"
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: "__default__"
+            model:
+              expr: "max(smartctl_device_temperature{instance=\"nas\"})"
+              instant: true
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [50]
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NAS 硬盘温度 > 50°C 持续 5 分钟"
+
+      - uid: nas-disk-smart-fail
+        title: "硬盘 SMART 健康异常"
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: "__default__"
+            model:
+              expr: "smartctl_device_smart_status{instance=\"nas\"}"
+              instant: true
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "NAS 硬盘 SMART 健康状态异常！立即检查"
+
+      - uid: nas-container-down
+        title: "容器停止运行"
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: "__default__"
+            model:
+              expr: "count(container_last_seen{instance=\"nas\",name!=\"\",id!=\"/\"})"
+              instant: true
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [5]
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NAS 运行容器数 < 5，可能有容器停止"
