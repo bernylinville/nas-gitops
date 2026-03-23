@@ -11,18 +11,30 @@ groups:
         condition: C
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__default__"
             model:
               expr: "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"nas\"}[5m])) * 100)"
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator:
                     type: gt
                     params: [85]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
         for: 5m
         labels:
           severity: warning
@@ -34,18 +46,30 @@ groups:
         condition: C
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__default__"
             model:
               expr: "(1 - node_memory_MemAvailable_bytes{instance=\"nas\"} / node_memory_MemTotal_bytes{instance=\"nas\"}) * 100"
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator:
                     type: gt
                     params: [90]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
         for: 5m
         labels:
           severity: warning
@@ -57,18 +81,30 @@ groups:
         condition: C
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__default__"
             model:
               expr: "(1 - node_filesystem_avail_bytes{mountpoint=\"/\",instance=\"nas\"} / node_filesystem_size_bytes{mountpoint=\"/\",instance=\"nas\"}) * 100"
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator:
                     type: gt
                     params: [85]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
         for: 5m
         labels:
           severity: critical
@@ -80,18 +116,30 @@ groups:
         condition: C
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__default__"
             model:
               expr: "(1 - node_filesystem_avail_bytes{mountpoint=\"/data\",instance=\"nas\"} / node_filesystem_size_bytes{mountpoint=\"/data\",instance=\"nas\"}) * 100"
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator:
                     type: gt
                     params: [85]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
         for: 5m
         labels:
           severity: critical
@@ -103,18 +151,30 @@ groups:
         condition: C
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__default__"
             model:
               expr: "max(node_hwmon_temp_celsius{chip=\"platform_coretemp_0\",instance=\"nas\"})"
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator:
                     type: gt
                     params: [75]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
         for: 3m
         labels:
           severity: critical
@@ -126,18 +186,30 @@ groups:
         condition: C
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__default__"
             model:
               expr: "max(smartctl_device_temperature{instance=\"nas\"})"
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator:
                     type: gt
                     params: [50]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
         for: 5m
         labels:
           severity: warning
@@ -149,18 +221,30 @@ groups:
         condition: C
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__default__"
             model:
-              expr: "smartctl_device_smart_status{instance=\"nas\"}"
+              expr: "min(smartctl_device_smart_status{instance=\"nas\"})"
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator:
                     type: lt
                     params: [1]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
         for: 0s
         labels:
           severity: critical
@@ -172,18 +256,30 @@ groups:
         condition: C
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__default__"
             model:
               expr: "count(container_last_seen{instance=\"nas\",name!=\"\",id!=\"/\"})"
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator:
                     type: lt
                     params: [5]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
         for: 2m
         labels:
           severity: warning
