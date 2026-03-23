@@ -14,11 +14,8 @@
 		reverse_proxy uptime-kuma:3001
 	}
 
-	# Grafana — redirect /grafana to /grafana/
-	redir /grafana /grafana/ 301
-
-	# Grafana — reverse proxy
-	handle_path /grafana/* {
+	# Grafana (sub-path handled by Grafana itself via GF_SERVER_SERVE_FROM_SUB_PATH)
+	handle /grafana* {
 		reverse_proxy grafana:3000
 	}
 
