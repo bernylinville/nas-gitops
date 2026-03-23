@@ -13,3 +13,9 @@ scrape_configs:
       - targets: ["node-exporter:9100"]
         labels:
           instance: "nas"
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          instance: "nas"
