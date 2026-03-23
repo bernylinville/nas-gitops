@@ -6,6 +6,7 @@ services:
   grafana:
     image: grafana/grafana-oss:12.4.1
     container_name: grafana
+    user: "472"
     restart: unless-stopped
     ports:
       - "${NAS_LAN_IP:-192.168.50.10}:3000:3000"
@@ -31,6 +32,7 @@ services:
   prometheus:
     image: prom/prometheus:v3.10.0
     container_name: prometheus
+    user: "65534:65534"
     restart: unless-stopped
     ports:
       - "${NAS_LAN_IP:-192.168.50.10}:9090:9090"
