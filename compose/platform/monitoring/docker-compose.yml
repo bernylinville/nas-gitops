@@ -1,7 +1,5 @@
 ---
-# Grafana + Prometheus + node-exporter — NAS 可视化监控
-# Versions confirmed via GitHub API (2026-03-23):
-#   Grafana: 12.4.1, Prometheus: 3.10.0, node-exporter: 1.10.2
+# Grafana + Prometheus + node-exporter + cAdvisor — NAS 可视化监控
 services:
   grafana:
     image: grafana/grafana-oss:12.4.1
@@ -76,7 +74,7 @@ services:
       retries: 3
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.56.2
+    image: gcr.io/cadvisor/cadvisor:v0.52.1
     container_name: cadvisor
     restart: unless-stopped
     privileged: true
