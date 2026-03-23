@@ -112,10 +112,9 @@
       "targets": [
         { "expr": "avg(rate(node_cpu_seconds_total{mode=\"user\",instance=\"nas\"}[5m])) * 100", "legendFormat": "User" },
         { "expr": "avg(rate(node_cpu_seconds_total{mode=\"system\",instance=\"nas\"}[5m])) * 100", "legendFormat": "System" },
-        { "expr": "avg(rate(node_cpu_seconds_total{mode=\"iowait\",instance=\"nas\"}[5m])) * 100", "legendFormat": "I/O Wait" },
-        { "expr": "avg(rate(node_cpu_seconds_total{mode=\"steal\",instance=\"nas\"}[5m])) * 100", "legendFormat": "Steal" }
+        { "expr": "avg(rate(node_cpu_seconds_total{mode=\"iowait\",instance=\"nas\"}[5m])) * 100", "legendFormat": "I/O Wait" }
       ],
-      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "custom": { "fillOpacity": 30, "lineWidth": 1, "stacking": { "mode": "normal" }, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "custom": { "fillOpacity": 20, "lineWidth": 1, "stacking": { "mode": "normal" }, "gradientMode": "none" } }, "overrides": [{ "matcher": { "id": "byName", "options": "User" }, "properties": [{ "id": "color", "value": { "fixedColor": "#5794F2", "mode": "fixed" } }] }, { "matcher": { "id": "byName", "options": "System" }, "properties": [{ "id": "color", "value": { "fixedColor": "#FF9830", "mode": "fixed" } }] }, { "matcher": { "id": "byName", "options": "I/O Wait" }, "properties": [{ "id": "color", "value": { "fixedColor": "#F2495C", "mode": "fixed" } }] }] },
       "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
@@ -123,12 +122,10 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
       "datasource": { "type": "prometheus" },
       "targets": [
-        { "expr": "node_memory_MemTotal_bytes{instance=\"nas\"} - node_memory_MemAvailable_bytes{instance=\"nas\"} - node_memory_Cached_bytes{instance=\"nas\"} - node_memory_Buffers_bytes{instance=\"nas\"}", "legendFormat": "App Used" },
-        { "expr": "node_memory_Cached_bytes{instance=\"nas\"}", "legendFormat": "Cache" },
-        { "expr": "node_memory_Buffers_bytes{instance=\"nas\"}", "legendFormat": "Buffers" },
+        { "expr": "node_memory_MemTotal_bytes{instance=\"nas\"} - node_memory_MemAvailable_bytes{instance=\"nas\"}", "legendFormat": "Used" },
         { "expr": "node_memory_MemAvailable_bytes{instance=\"nas\"}", "legendFormat": "Available" }
       ],
-      "fieldConfig": { "defaults": { "unit": "bytes", "min": 0, "custom": { "fillOpacity": 30, "lineWidth": 1, "stacking": { "mode": "normal" }, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "fieldConfig": { "defaults": { "unit": "bytes", "min": 0, "custom": { "fillOpacity": 20, "lineWidth": 1, "stacking": { "mode": "normal" }, "gradientMode": "none" } }, "overrides": [{ "matcher": { "id": "byName", "options": "Used" }, "properties": [{ "id": "color", "value": { "fixedColor": "#FF9830", "mode": "fixed" } }] }, { "matcher": { "id": "byName", "options": "Available" }, "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }] }] },
       "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
@@ -136,10 +133,10 @@
       "gridPos": { "h": 7, "w": 12, "x": 0, "y": 15 },
       "datasource": { "type": "prometheus" },
       "targets": [
-        { "expr": "rate(node_disk_read_bytes_total{instance=\"nas\",device=~\"sd[a-z]+|md[0-9]+\"}[5m])", "legendFormat": "{{device}} read ▲" },
-        { "expr": "-rate(node_disk_written_bytes_total{instance=\"nas\",device=~\"sd[a-z]+|md[0-9]+\"}[5m])", "legendFormat": "{{device}} write ▼" }
+        { "expr": "rate(node_disk_read_bytes_total{instance=\"nas\",device=~\"sda|md0\"}[5m])", "legendFormat": "{{device}} read" },
+        { "expr": "-rate(node_disk_written_bytes_total{instance=\"nas\",device=~\"sda|md0\"}[5m])", "legendFormat": "{{device}} write" }
       ],
-      "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 20, "lineWidth": 1, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 15, "lineWidth": 1, "gradientMode": "none" } }, "overrides": [{ "matcher": { "id": "byRegexp", "options": ".*read" }, "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }] }, { "matcher": { "id": "byRegexp", "options": ".*write" }, "properties": [{ "id": "color", "value": { "fixedColor": "#F2495C", "mode": "fixed" } }] }] },
       "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
@@ -150,7 +147,7 @@
         { "expr": "rate(node_network_receive_bytes_total{instance=\"nas\",device=~\"eth.*|en.*\"}[5m])", "legendFormat": "{{device}} rx ▼" },
         { "expr": "-rate(node_network_transmit_bytes_total{instance=\"nas\",device=~\"eth.*|en.*\"}[5m])", "legendFormat": "{{device}} tx ▲" }
       ],
-      "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 20, "lineWidth": 1, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 15, "lineWidth": 1, "gradientMode": "none" } }, "overrides": [{ "matcher": { "id": "byRegexp", "options": ".*rx.*" }, "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }] }, { "matcher": { "id": "byRegexp", "options": ".*tx.*" }, "properties": [{ "id": "color", "value": { "fixedColor": "#5794F2", "mode": "fixed" } }] }] },
       "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     },
 
