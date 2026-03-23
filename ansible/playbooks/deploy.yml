@@ -58,6 +58,17 @@
         label: "{{ item.name }}"
       tags: [platform]
 
+    - name: "Deploy | Template monitoring .env with secrets"
+      ansible.builtin.copy:
+        dest: "{{ compose_base_dir }}/platform/monitoring/.env"
+        content: |
+          NAS_LAN_IP={{ nas_lan_ip | default('192.168.50.10') }}
+          GRAFANA_ADMIN_PASSWORD={{ grafana_admin_password }}
+        mode: "0600"
+        owner: root
+        group: root
+      tags: [platform]
+
     - name: "Deploy | Set .env file permissions"
       ansible.builtin.file:
         path: "{{ compose_base_dir }}/{{ item.type }}/{{ item.name }}/.env"

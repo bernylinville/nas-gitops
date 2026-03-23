@@ -36,3 +36,4 @@ claude-ansible-skills-main/
 tmp/
 *.tmp
 *.bak
+compose/platform/monitoring/.env
