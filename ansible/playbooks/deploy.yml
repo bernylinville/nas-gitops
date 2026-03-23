@@ -19,6 +19,9 @@
       - name: uptime-kuma
         type: platform
         path: "{{ playbook_dir }}/../../compose/platform/uptime-kuma"
+      - name: monitoring
+        type: platform
+        path: "{{ playbook_dir }}/../../compose/platform/monitoring"
 
   tasks:
     # --- Docker network ---
@@ -76,6 +79,7 @@
       loop:
         - caddy
         - uptime-kuma
+        - monitoring
       tags: [platform]
 
     # --- Health check ---
@@ -93,8 +97,10 @@
       ansible.builtin.debug:
         msg: |
           === Deployment Complete ===
-          Platform: caddy (2.11.2), uptime-kuma (2.2.1)
+          Platform: caddy (2.11.2), uptime-kuma (2.2.1), grafana (12.4.1)
+          Monitoring: prometheus (3.10.0), node-exporter (1.10.2)
           Access: http://{{ nas_lan_ip | default('192.168.50.10') }}
+          Grafana: http://{{ nas_lan_ip | default('192.168.50.10') }}/grafana/
 
           Next: Run 'scripts/tag-deploy.sh --push' to tag this deployment
       tags: [platform]
