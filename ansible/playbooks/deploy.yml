@@ -71,6 +71,17 @@
         group: root
       tags: [platform]
 
+    - name: "Deploy | Template Grafana alerting contactpoints"
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../../compose/platform/monitoring/provisioning/alerting/contactpoints.yml.j2"
+        dest: "{{ compose_base_dir }}/platform/monitoring/provisioning/alerting/contactpoints.yml"
+        mode: "0644"
+        owner: root
+        group: root
+      vars:
+        chatid: "{{ notify_telegram_chat_id }}"
+      tags: [platform]
+
     - name: "Deploy | Set .env file permissions"
       ansible.builtin.file:
         path: "{{ compose_base_dir }}/{{ item.type }}/{{ item.name }}/.env"

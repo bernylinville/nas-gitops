@@ -1,858 +1,262 @@
 {
   "uid": "nas-overview",
   "title": "NAS Overview",
-  "tags": [
-    "nas"
-  ],
+  "description": "Home NAS monitoring — i5-9600KF / 16GB / Debian 13",
+  "tags": ["nas"],
   "timezone": "browser",
   "refresh": "30s",
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
+  "time": { "from": "now-1h", "to": "now" },
+  "fiscalYearStartMonth": 0,
+  "liveNow": false,
+  "style": "dark",
   "panels": [
     {
-      "id": 1,
-      "title": "Uptime",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "time() - node_boot_time_seconds{instance=\"nas\"}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "dtdurations",
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        }
-      }
+      "id": 100, "type": "row", "title": "📊 System Overview",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }, "collapsed": false
     },
     {
-      "id": 2,
-      "title": "CPU",
-      "type": "gauge",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"nas\"}[5m])) * 100)"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 60
-              },
-              {
-                "color": "red",
-                "value": 85
-              }
-            ]
-          }
-        }
-      }
+      "id": 1, "title": "Uptime", "type": "stat",
+      "gridPos": { "h": 3, "w": 3, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "time() - node_boot_time_seconds{instance=\"nas\"}", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "unit": "dtdurations", "color": { "mode": "fixed", "fixedColor": "text" }, "thresholds": { "steps": [{ "color": "green", "value": null }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value", "colorMode": "none" }
     },
     {
-      "id": 3,
-      "title": "Memory",
-      "type": "gauge",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "(1 - node_memory_MemAvailable_bytes{instance=\"nas\"} / node_memory_MemTotal_bytes{instance=\"nas\"}) * 100"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          }
-        }
-      }
+      "id": 2, "title": "CPU", "type": "gauge",
+      "gridPos": { "h": 5, "w": 3, "x": 3, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"nas\"}[5m])) * 100)", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 60 }, { "color": "#F2495C", "value": 85 }] } } }
     },
     {
-      "id": 4,
-      "title": "Disk / ",
-      "type": "gauge",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "(1 - node_filesystem_avail_bytes{mountpoint=\"/\",instance=\"nas\"} / node_filesystem_size_bytes{mountpoint=\"/\",instance=\"nas\"}) * 100"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          }
-        }
-      }
+      "id": 3, "title": "Memory", "type": "gauge",
+      "gridPos": { "h": 5, "w": 3, "x": 6, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "(1 - node_memory_MemAvailable_bytes{instance=\"nas\"} / node_memory_MemTotal_bytes{instance=\"nas\"}) * 100", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 70 }, { "color": "#F2495C", "value": 90 }] } } }
     },
     {
-      "id": 5,
-      "title": "Disk /data",
-      "type": "gauge",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "(1 - node_filesystem_avail_bytes{mountpoint=\"/data\",instance=\"nas\"} / node_filesystem_size_bytes{mountpoint=\"/data\",instance=\"nas\"}) * 100"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          }
-        }
-      }
+      "id": 4, "title": "/ (System)", "type": "gauge",
+      "gridPos": { "h": 5, "w": 3, "x": 9, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "(1 - node_filesystem_avail_bytes{mountpoint=\"/\",instance=\"nas\"} / node_filesystem_size_bytes{mountpoint=\"/\",instance=\"nas\"}) * 100", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 70 }, { "color": "#F2495C", "value": 85 }] } } }
     },
     {
-      "id": 6,
-      "title": "CPU Temp",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "avg(node_hwmon_temp_celsius{chip=\"platform_coretemp_0\",instance=\"nas\"})",
-          "legendFormat": "avg"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "celsius",
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 55
-              },
-              {
-                "color": "red",
-                "value": 75
-              }
-            ]
-          }
-        }
-      }
+      "id": 5, "title": "/data (RAID1)", "type": "gauge",
+      "gridPos": { "h": 5, "w": 3, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "(1 - node_filesystem_avail_bytes{mountpoint=\"/data\",instance=\"nas\"} / node_filesystem_size_bytes{mountpoint=\"/data\",instance=\"nas\"}) * 100", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 70 }, { "color": "#F2495C", "value": 85 }] } } }
     },
     {
-      "id": 10,
-      "title": "CPU Usage",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 4
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"nas\"}[5m])) * 100)",
-          "legendFormat": "Total"
-        },
-        {
-          "expr": "avg(rate(node_cpu_seconds_total{mode=\"user\",instance=\"nas\"}[5m])) * 100",
-          "legendFormat": "User"
-        },
-        {
-          "expr": "avg(rate(node_cpu_seconds_total{mode=\"system\",instance=\"nas\"}[5m])) * 100",
-          "legendFormat": "System"
-        },
-        {
-          "expr": "avg(rate(node_cpu_seconds_total{mode=\"iowait\",instance=\"nas\"}[5m])) * 100",
-          "legendFormat": "I/O Wait"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "custom": {
-            "fillOpacity": 15,
-            "lineWidth": 2
-          }
-        }
-      }
+      "id": 6, "title": "CPU Temp", "type": "gauge",
+      "gridPos": { "h": 5, "w": 3, "x": 15, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "max(node_hwmon_temp_celsius{chip=\"platform_coretemp_0\",instance=\"nas\"})", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "unit": "celsius", "min": 0, "max": 100, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 55 }, { "color": "#F2495C", "value": 75 }] } } }
     },
     {
-      "id": 11,
-      "title": "Memory",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 4
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "node_memory_MemTotal_bytes{instance=\"nas\"}",
-          "legendFormat": "Total"
-        },
-        {
-          "expr": "node_memory_MemTotal_bytes{instance=\"nas\"} - node_memory_MemAvailable_bytes{instance=\"nas\"}",
-          "legendFormat": "Used"
-        },
-        {
-          "expr": "node_memory_Cached_bytes{instance=\"nas\"}",
-          "legendFormat": "Cached"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "min": 0,
-          "custom": {
-            "fillOpacity": 15,
-            "lineWidth": 2
-          }
-        }
-      }
+      "id": 7, "title": "Load (1m)", "type": "stat",
+      "gridPos": { "h": 3, "w": 3, "x": 18, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "node_load1{instance=\"nas\"}", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "decimals": 2, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 4 }, { "color": "#F2495C", "value": 6 }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" }
     },
     {
-      "id": 12,
-      "title": "Disk I/O",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 11
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "rate(node_disk_read_bytes_total{instance=\"nas\",device=~\"sd[a-z]+|md[0-9]+\"}[5m])",
-          "legendFormat": "{{device}} read"
-        },
-        {
-          "expr": "-rate(node_disk_written_bytes_total{instance=\"nas\",device=~\"sd[a-z]+|md[0-9]+\"}[5m])",
-          "legendFormat": "{{device}} write"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "custom": {
-            "fillOpacity": 15,
-            "lineWidth": 2
-          }
-        }
-      }
+      "id": 8, "title": "Containers", "type": "stat",
+      "gridPos": { "h": 3, "w": 3, "x": 21, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "count(container_last_seen{instance=\"nas\",name!=\"\",id!=\"/\"})", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "thresholds": { "steps": [{ "color": "#F2495C", "value": null }, { "color": "#FF9830", "value": 4 }, { "color": "#73BF69", "value": 6 }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" }
     },
     {
-      "id": 13,
-      "title": "Network Traffic",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 11
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "rate(node_network_receive_bytes_total{instance=\"nas\",device=~\"eth.*|en.*\"}[5m])",
-          "legendFormat": "{{device}} rx"
-        },
-        {
-          "expr": "-rate(node_network_transmit_bytes_total{instance=\"nas\",device=~\"eth.*|en.*\"}[5m])",
-          "legendFormat": "{{device}} tx"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "custom": {
-            "fillOpacity": 15,
-            "lineWidth": 2
-          }
-        }
-      }
+      "id": 9, "title": "Avail /", "type": "stat",
+      "gridPos": { "h": 2, "w": 3, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "node_filesystem_avail_bytes{mountpoint=\"/\",instance=\"nas\"}", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "fixed", "fixedColor": "text" }, "thresholds": { "steps": [{ "color": "text", "value": null }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "none", "textMode": "value" }
     },
     {
-      "id": 14,
-      "title": "CPU Core Temperatures",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 18
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "node_hwmon_temp_celsius{chip=\"platform_coretemp_0\",instance=\"nas\",sensor=~\"temp[2-7]\"}",
-          "legendFormat": "Core {{sensor}}"
-        },
-        {
-          "expr": "node_hwmon_temp_celsius{chip=\"platform_coretemp_0\",instance=\"nas\",sensor=\"temp1\"}",
-          "legendFormat": "Package"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "celsius",
-          "min": 0,
-          "max": 100,
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 55
-              },
-              {
-                "color": "red",
-                "value": 75
-              }
-            ]
-          },
-          "color": {
-            "mode": "continuous-GrYlRd"
-          }
-        }
-      }
+      "id": 19, "title": "Avail /data", "type": "stat",
+      "gridPos": { "h": 2, "w": 3, "x": 18, "y": 4 },
+      "datasource": { "type": "prometheus" },
+      "targets": [{ "expr": "node_filesystem_avail_bytes{mountpoint=\"/data\",instance=\"nas\"}", "legendFormat": "" }],
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "fixed", "fixedColor": "text" }, "thresholds": { "steps": [{ "color": "text", "value": null }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "none", "textMode": "value" }
     },
     {
-      "id": 15,
-      "title": "System Load",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 18
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 18, "title": "RAM Used / Total", "type": "stat",
+      "gridPos": { "h": 2, "w": 3, "x": 21, "y": 4 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "node_load1{instance=\"nas\"}",
-          "legendFormat": "1m"
-        },
-        {
-          "expr": "node_load5{instance=\"nas\"}",
-          "legendFormat": "5m"
-        },
-        {
-          "expr": "node_load15{instance=\"nas\"}",
-          "legendFormat": "15m"
-        },
-        {
-          "expr": "count(node_cpu_seconds_total{mode=\"idle\",instance=\"nas\"})",
-          "legendFormat": "CPU Cores"
-        }
+        { "expr": "node_memory_MemTotal_bytes{instance=\"nas\"} - node_memory_MemAvailable_bytes{instance=\"nas\"}", "legendFormat": "used" },
+        { "expr": "node_memory_MemTotal_bytes{instance=\"nas\"}", "legendFormat": "total" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2
-          }
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "fixed", "fixedColor": "text" }, "thresholds": { "steps": [{ "color": "text", "value": null }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "none", "textMode": "value" }
+    },
+
+    {
+      "id": 101, "type": "row", "title": "🖥️ Host Performance",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 }, "collapsed": false
     },
     {
-      "id": 20,
-      "title": "Disk Temperature",
-      "type": "bargauge",
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 0,
-        "y": 25
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 10, "title": "CPU Usage", "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "smartctl_device_temperature{instance=\"nas\"}",
-          "legendFormat": "{{device}} ({{model_name}})"
-        }
+        { "expr": "avg(rate(node_cpu_seconds_total{mode=\"user\",instance=\"nas\"}[5m])) * 100", "legendFormat": "User" },
+        { "expr": "avg(rate(node_cpu_seconds_total{mode=\"system\",instance=\"nas\"}[5m])) * 100", "legendFormat": "System" },
+        { "expr": "avg(rate(node_cpu_seconds_total{mode=\"iowait\",instance=\"nas\"}[5m])) * 100", "legendFormat": "I/O Wait" },
+        { "expr": "avg(rate(node_cpu_seconds_total{mode=\"steal\",instance=\"nas\"}[5m])) * 100", "legendFormat": "Steal" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "celsius",
-          "min": 0,
-          "max": 60,
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 40
-              },
-              {
-                "color": "red",
-                "value": 50
-              }
-            ]
-          }
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "custom": { "fillOpacity": 30, "lineWidth": 1, "stacking": { "mode": "normal" }, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
-      "id": 25,
-      "title": "SMART Health",
-      "type": "stat",
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 8,
-        "y": 25
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 11, "title": "Memory", "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "smartctl_device_smart_status{instance=\"nas\"}",
-          "legendFormat": "{{device}}"
-        }
+        { "expr": "node_memory_MemTotal_bytes{instance=\"nas\"} - node_memory_MemAvailable_bytes{instance=\"nas\"} - node_memory_Cached_bytes{instance=\"nas\"} - node_memory_Buffers_bytes{instance=\"nas\"}", "legendFormat": "App Used" },
+        { "expr": "node_memory_Cached_bytes{instance=\"nas\"}", "legendFormat": "Cache" },
+        { "expr": "node_memory_Buffers_bytes{instance=\"nas\"}", "legendFormat": "Buffers" },
+        { "expr": "node_memory_MemAvailable_bytes{instance=\"nas\"}", "legendFormat": "Available" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "1": {
-                  "text": "PASSED",
-                  "color": "green"
-                },
-                "0": {
-                  "text": "FAILED",
-                  "color": "red"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "bytes", "min": 0, "custom": { "fillOpacity": 30, "lineWidth": 1, "stacking": { "mode": "normal" }, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
-      "id": 26,
-      "title": "Disk Temp History",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 25
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 12, "title": "Disk I/O", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 15 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "smartctl_device_temperature{instance=\"nas\"}",
-          "legendFormat": "{{device}}"
-        }
+        { "expr": "rate(node_disk_read_bytes_total{instance=\"nas\",device=~\"sd[a-z]+|md[0-9]+\"}[5m])", "legendFormat": "{{device}} read ▲" },
+        { "expr": "-rate(node_disk_written_bytes_total{instance=\"nas\",device=~\"sd[a-z]+|md[0-9]+\"}[5m])", "legendFormat": "{{device}} write ▼" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "celsius",
-          "min": 0,
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2
-          },
-          "color": {
-            "mode": "continuous-GrYlRd"
-          }
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 20, "lineWidth": 1, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
-      "id": 30,
-      "title": "Container CPU %",
-      "type": "bargauge",
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 0,
-        "y": 31
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 13, "title": "Network Traffic (eth0)", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 15 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "rate(container_cpu_usage_seconds_total{instance=\"nas\",name!=\"\",id!=\"/\"}[5m]) * 100",
-          "legendFormat": "{{name}}"
-        }
+        { "expr": "rate(node_network_receive_bytes_total{instance=\"nas\",device=~\"eth.*|en.*\"}[5m])", "legendFormat": "{{device}} rx ▼" },
+        { "expr": "-rate(node_network_transmit_bytes_total{instance=\"nas\",device=~\"eth.*|en.*\"}[5m])", "legendFormat": "{{device}} tx ▲" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 50
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 20, "lineWidth": 1, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
+    },
+
+    {
+      "id": 102, "type": "row", "title": "🌡️ Temperature & Health",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 }, "collapsed": false
     },
     {
-      "id": 21,
-      "title": "Container Memory",
-      "type": "bargauge",
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 8,
-        "y": 31
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 14, "title": "CPU Core Temperatures", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 23 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "container_memory_usage_bytes{instance=\"nas\",name!=\"\",id!=\"/\"}",
-          "legendFormat": "{{name}}"
-        }
+        { "expr": "node_hwmon_temp_celsius{chip=\"platform_coretemp_0\",instance=\"nas\",sensor=\"temp1\"}", "legendFormat": "Package" },
+        { "expr": "node_hwmon_temp_celsius{chip=\"platform_coretemp_0\",instance=\"nas\",sensor=~\"temp[2-7]\"}", "legendFormat": "Core {{sensor}}" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "min": 0,
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 268435456
-              },
-              {
-                "color": "red",
-                "value": 536870912
-              }
-            ]
-          }
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "celsius", "min": 15, "max": 90, "custom": { "fillOpacity": 10, "lineWidth": 2, "gradientMode": "scheme" }, "color": { "mode": "continuous-GrYlRd" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 55 }, { "color": "red", "value": 75 }] } } },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
-      "id": 22,
-      "title": "Container Status",
-      "type": "table",
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 16,
-        "y": 31
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 20, "title": "Disk Temperature", "type": "bargauge",
+      "gridPos": { "h": 7, "w": 4, "x": 8, "y": 23 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "container_memory_usage_bytes{instance=\"nas\",name!=\"\",id!=\"/\"}",
-          "legendFormat": "{{name}}",
-          "format": "table",
-          "instant": true
-        }
+        { "expr": "smartctl_device_temperature{instance=\"nas\"}", "legendFormat": "{{device}}" }
       ],
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "id": true,
-              "image": true,
-              "instance": true,
-              "job": true,
-              "__name__": true
-            },
-            "renameByName": {
-              "name": "Container",
-              "Value": "Memory"
-            }
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Container"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 120
-              }
-            ]
-          }
-        ]
-      }
+      "fieldConfig": { "defaults": { "unit": "celsius", "min": 0, "max": 55, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 40 }, { "color": "#F2495C", "value": 50 }] } } },
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] }, "minVizHeight": 30 }
     },
     {
-      "id": 23,
-      "title": "Container Network I/O",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 38
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 25, "title": "SMART Health", "type": "stat",
+      "gridPos": { "h": 7, "w": 4, "x": 12, "y": 23 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "rate(container_network_receive_bytes_total{instance=\"nas\",name!=\"\",id!=\"/\"}[5m])",
-          "legendFormat": "{{name}} rx"
-        },
-        {
-          "expr": "-rate(container_network_transmit_bytes_total{instance=\"nas\",name!=\"\",id!=\"/\"}[5m])",
-          "legendFormat": "{{name}} tx"
-        }
+        { "expr": "smartctl_device_smart_status{instance=\"nas\"}", "legendFormat": "{{device}}" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "custom": {
-            "fillOpacity": 15,
-            "lineWidth": 2
-          }
-        }
-      }
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "1": { "text": "PASSED ✅", "color": "#73BF69" }, "0": { "text": "FAILED ❌", "color": "#F2495C" } } }], "thresholds": { "steps": [{ "color": "#F2495C", "value": null }, { "color": "#73BF69", "value": 1 }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "textMode": "value_and_name" }
     },
     {
-      "id": 24,
-      "title": "Container CPU History",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 38
-      },
-      "datasource": {
-        "type": "prometheus"
-      },
+      "id": 15, "title": "System Load", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 23 },
+      "datasource": { "type": "prometheus" },
       "targets": [
-        {
-          "expr": "rate(container_cpu_usage_seconds_total{instance=\"nas\",name!=\"\",id!=\"/\"}[5m]) * 100",
-          "legendFormat": "{{name}}"
-        }
+        { "expr": "node_load1{instance=\"nas\"}", "legendFormat": "1m" },
+        { "expr": "node_load5{instance=\"nas\"}", "legendFormat": "5m" },
+        { "expr": "node_load15{instance=\"nas\"}", "legendFormat": "15m" },
+        { "expr": "count(node_cpu_seconds_total{mode=\"idle\",instance=\"nas\"})", "legendFormat": "CPU Cores" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "custom": {
-            "fillOpacity": 15,
-            "lineWidth": 2
-          }
-        }
-      }
+      "fieldConfig": { "defaults": { "custom": { "fillOpacity": 10, "lineWidth": 2, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } }, "overrides": [{ "matcher": { "id": "byName", "options": "CPU Cores" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash" } }, { "id": "custom.fillOpacity", "value": 0 }] }] },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
+    },
+
+    {
+      "id": 103, "type": "row", "title": "🐳 Docker Containers",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 }, "collapsed": false
+    },
+    {
+      "id": 30, "title": "Container CPU %", "type": "bargauge",
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 31 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        { "expr": "sort_desc(rate(container_cpu_usage_seconds_total{instance=\"nas\",name!=\"\",id!=\"/\"}[5m]) * 100)", "legendFormat": "{{name}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "decimals": 2, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 50 }, { "color": "#F2495C", "value": 80 }] } } },
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] }, "minVizHeight": 20 }
+    },
+    {
+      "id": 31, "title": "Container Memory", "type": "bargauge",
+      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 31 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        { "expr": "sort_desc(container_memory_usage_bytes{instance=\"nas\",name!=\"\",id!=\"/\"})", "legendFormat": "{{name}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "min": 0, "thresholds": { "steps": [{ "color": "#73BF69", "value": null }, { "color": "#FF9830", "value": 268435456 }, { "color": "#F2495C", "value": 536870912 }] } } },
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] }, "minVizHeight": 20 }
+    },
+    {
+      "id": 34, "title": "Container CPU History", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 31 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        { "expr": "rate(container_cpu_usage_seconds_total{instance=\"nas\",name!=\"\",id!=\"/\"}[5m]) * 100", "legendFormat": "{{name}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "custom": { "fillOpacity": 20, "lineWidth": 1, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
+    },
+    {
+      "id": 33, "title": "Container Network I/O", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 38 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        { "expr": "rate(container_network_receive_bytes_total{instance=\"nas\",name!=\"\",id!=\"/\"}[5m])", "legendFormat": "{{name}} rx" },
+        { "expr": "-rate(container_network_transmit_bytes_total{instance=\"nas\",name!=\"\",id!=\"/\"}[5m])", "legendFormat": "{{name}} tx" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 20, "lineWidth": 1, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
+    },
+    {
+      "id": 35, "title": "Container Memory History", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 38 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        { "expr": "container_memory_usage_bytes{instance=\"nas\",name!=\"\",id!=\"/\"}", "legendFormat": "{{name}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "min": 0, "custom": { "fillOpacity": 20, "lineWidth": 1, "gradientMode": "scheme" }, "color": { "mode": "palette-classic" } } },
+      "options": { "tooltip": { "mode": "multi", "sort": "desc" } }
     }
   ],
   "schemaVersion": 39,

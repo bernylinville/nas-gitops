@@ -1,0 +1,26 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: Telegram
+    receivers:
+      - uid: telegram-nas
+        type: telegram
+        settings:
+          bottoken: "{{ notify_telegram_bot_token }}"
+          chatid: "{{ notify_telegram_chat_id }}"
+          parse_mode: HTML
+          message: >-
+            {% raw %}{{ if eq .Status "firing" }}🔴 <b>NAS Alert — FIRING</b>{{ else }}✅ <b>NAS Alert — RESOLVED</b>{{ end }}
+
+
+            {{ range .Alerts }}
+
+            <b>{{ .Labels.alertname }}</b>
+
+            {{ if .Annotations.summary }}📝 {{ .Annotations.summary }}{{ end }}
+
+            ⏰ {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+
+            {{ end }}{% endraw %}
+        disableResolveMessage: false
