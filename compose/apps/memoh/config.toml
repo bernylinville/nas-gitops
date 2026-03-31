@@ -1,0 +1,62 @@
+## Memoh configuration
+## Based on: https://github.com/memohai/Memoh/blob/main/conf/app.docker.toml
+
+[log]
+level = "info"
+format = "text"
+
+[server]
+addr = "server:8080"
+
+## Admin credentials
+[admin]
+username = "admin"
+password = "admin123"
+email = "admin@memoh.local"
+
+## Auth configuration
+[auth]
+jwt_secret = "YZq8kXrW5dFpNt9mLxQvHbRjKsMnOePw"
+jwt_expires_in = "168h"
+
+timezone = "Asia/Shanghai"
+
+## Containerd configuration
+[containerd]
+socket_path = "/run/containerd/containerd.sock"
+namespace = "default"
+
+[workspace]
+default_image = "debian:bookworm-slim"
+snapshotter = "overlayfs"
+data_root = "/opt/memoh/data"
+runtime_dir = "/opt/memoh/runtime"
+
+## Postgres configuration
+[postgres]
+host = "postgres"
+port = 5432
+user = "memoh"
+password = "memoh123"
+database = "memoh"
+sslmode = "disable"
+
+## Qdrant configuration (optional, enable with --profile qdrant)
+[qdrant]
+base_url = "http://qdrant:6334"
+api_key = ""
+timeout_seconds = 10
+
+[sparse]
+base_url = "http://sparse:8085"
+
+## Browser Gateway (optional, enable with --profile browser)
+[browser_gateway]
+host = "browser"
+port = 8083
+server_addr = "server:8080"
+
+## Web
+[web]
+host = "127.0.0.1"
+port = 8082

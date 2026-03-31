@@ -5,6 +5,7 @@
 # Tags:
 #   - network: Create shared Docker network only
 #   - platform: Deploy platform services (caddy, uptime-kuma)
+#   - apps: Deploy app services (memoh)
 - name: Deploy compose services
   hosts: nas
   become: true
@@ -22,6 +23,9 @@
       - name: monitoring
         type: platform
         path: "{{ playbook_dir }}/../../compose/platform/monitoring"
+      - name: memoh
+        type: apps
+        path: "{{ playbook_dir }}/../../compose/apps/memoh"
 
   tasks:
     # --- Docker network ---
@@ -29,7 +33,7 @@
       community.docker.docker_network:
         name: nas-platform
         state: present
-      tags: [network, platform]
+      tags: [network, platform, apps]
 
     # --- Directory structure ---
     - name: "Deploy | Create compose base directory"
@@ -42,7 +46,7 @@
       loop: "{{ compose_services }}"
       loop_control:
         label: "{{ item.name }}"
-      tags: [platform]
+      tags: [platform, apps]
 
     # --- Sync compose files ---
     - name: "Deploy | Sync compose files"
@@ -106,6 +110,16 @@
         - monitoring
       tags: [platform]
 
+    # --- App services ---
+    - name: "Deploy | Start app services"
+      community.docker.docker_compose_v2:
+        project_src: "{{ compose_base_dir }}/apps/{{ item }}"
+        state: present
+        pull: "missing"
+      loop:
+        - memoh
+      tags: [apps]
+
     # --- Health check ---
     - name: "Deploy | Wait for Caddy health"
       ansible.builtin.uri:
@@ -115,7 +129,7 @@
       retries: 10
       delay: 5
       until: __deploy_caddy_health.status == 200
-      tags: [platform]
+      tags: [platform, apps]
 
     - name: "Deploy | Print deployment summary"
       ansible.builtin.debug:
@@ -123,8 +137,10 @@
           === Deployment Complete ===
           Platform: caddy (2.11.2), uptime-kuma (2.2.1), grafana (12.4.1)
           Monitoring: prometheus (3.10.0), node-exporter (1.10.2), cadvisor (0.56.2)
+          Apps: memoh (0.6.1)
           Access: http://{{ nas_lan_ip | default('192.168.50.10') }}
           Grafana: http://{{ nas_lan_ip | default('192.168.50.10') }}/grafana/
+          Memoh: http://{{ nas_lan_ip | default('192.168.50.10') }}:8082
 
           Next: Run 'scripts/tag-deploy.sh --push' to tag this deployment
       tags: [platform]
