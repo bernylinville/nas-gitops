@@ -49,7 +49,7 @@ services:
       - memoh_data:/opt/memoh/data
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "${NAS_LAN_IP:-192.168.50.10}:8080:8080"
+      - "${NAS_LAN_IP:-192.168.50.10}:${MEMOH_SERVER_PORT:-18080}:8080"
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -67,7 +67,7 @@ services:
     container_name: memoh-web
     restart: unless-stopped
     ports:
-      - "${NAS_LAN_IP:-192.168.50.10}:8082:8082"
+      - "${NAS_LAN_IP:-192.168.50.10}:${MEMOH_WEB_PORT:-18082}:8082"
     depends_on:
       - server
     networks:

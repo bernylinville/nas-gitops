@@ -101,6 +101,8 @@
         content: |
           NAS_LAN_IP={{ nas_lan_ip | default('192.168.50.10') }}
           POSTGRES_PASSWORD={{ memoh_postgres_password }}
+          MEMOH_SERVER_PORT={{ memoh_server_port | default('18080') }}
+          MEMOH_WEB_PORT={{ memoh_web_port | default('18082') }}
         mode: "0600"
         owner: root
         group: root
@@ -160,7 +162,7 @@
           Apps: memoh (0.6.1)
           Access: http://{{ nas_lan_ip | default('192.168.50.10') }}
           Grafana: http://{{ nas_lan_ip | default('192.168.50.10') }}/grafana/
-          Memoh: http://{{ nas_lan_ip | default('192.168.50.10') }}:8082
+          Memoh: http://{{ nas_lan_ip | default('192.168.50.10') }}:{{ memoh_web_port | default('18082') }}
 
           Next: Run 'scripts/tag-deploy.sh --push' to tag this deployment
       tags: [platform]
