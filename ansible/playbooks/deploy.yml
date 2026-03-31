@@ -60,7 +60,7 @@
       loop: "{{ compose_services }}"
       loop_control:
         label: "{{ item.name }}"
-      tags: [platform]
+      tags: [platform, apps]
 
     - name: "Deploy | Template monitoring .env with secrets"
       ansible.builtin.copy:
@@ -86,6 +86,26 @@
         chatid: "{{ notify_telegram_chat_id }}"
       tags: [platform]
 
+    - name: "Deploy | Template Memoh config.toml with secrets"
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../../compose/apps/memoh/config.toml.j2"
+        dest: "{{ compose_base_dir }}/apps/memoh/config.toml"
+        mode: "0600"
+        owner: root
+        group: root
+      tags: [apps]
+
+    - name: "Deploy | Template Memoh .env with secrets"
+      ansible.builtin.copy:
+        dest: "{{ compose_base_dir }}/apps/memoh/.env"
+        content: |
+          NAS_LAN_IP={{ nas_lan_ip | default('192.168.50.10') }}
+          POSTGRES_PASSWORD={{ memoh_postgres_password }}
+        mode: "0600"
+        owner: root
+        group: root
+      tags: [apps]
+
     - name: "Deploy | Set .env file permissions"
       ansible.builtin.file:
         path: "{{ compose_base_dir }}/{{ item.type }}/{{ item.name }}/.env"
@@ -96,7 +116,7 @@
       loop_control:
         label: "{{ item.name }}"
       failed_when: false
-      tags: [platform]
+      tags: [platform, apps]
 
     # --- Platform services (Caddy first, then others) ---
     - name: "Deploy | Start platform services"
